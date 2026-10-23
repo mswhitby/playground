@@ -10,7 +10,7 @@ for name in ['WasmSharpWorker.js','Compilation.js','initializeWasmSharpModule.js
  s=(a.package/name).read_text()
  s=re.sub(r'^//# sourceMappingURL=.*$', '',s,flags=re.M)
  if name=='WasmSharpWorker.js':
-  s=s.replace('./initializeWasmSharpModule.js', './initializeWasmSharpModule.js?v=3')
+  s=s.replace('./initializeWasmSharpModule.js', './initializeWasmSharpModule.js?v=4')
  if name=='dotnet.js':
   s=re.sub(r'^import (\w+) from "\./([^"\n]+\.(?:dll|wasm|dat))";',lambda m:'const '+m[1]+' = "'+cdn+m[2]+'";',s,flags=re.M)
   s=s.replace('from "./dotnet.runtime.js"','from "'+cdn+'dotnet.runtime.js"').replace('from "./dotnet.native.js"','from "'+cdn+'dotnet.native.js"')
