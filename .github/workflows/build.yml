@@ -23,6 +23,13 @@ jobs:
       - name: Test course contracts and quiz scoring
         working-directory: playground
         run: node --test tests/*.test.mjs
+      - name: Test actual C# compilation and execution
+        working-directory: playground
+        run: |
+          runtime_dir="$(mktemp -d)"
+          npm pack @wasmsharp/core@0.10.2 --pack-destination "$runtime_dir"
+          tar -xzf "$runtime_dir/wasmsharp-core-0.10.2.tgz" -C "$runtime_dir"
+          node scripts/smoke-csharp-runtime.mjs "$runtime_dir/package"
       - name: Build one shared website
         working-directory: playground
         run: python scripts/build.py --game-source ../game-programming
