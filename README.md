@@ -32,7 +32,7 @@ The site attempts to load the public Game Programming manifest from its canonica
 - All four courses have entry routes; only Game Programming’s new units and the existing Python course have material.
 - Quizzes grade locally with explanations, retry, best/latest results, and stable activity IDs.
 - Unity practice completion is explicitly self-reported and separate from quiz results.
-- C# drafts save locally. Run code compiles and executes the original C# in a terminable browser worker using .NET and Roslyn. Check answer compiles a separate entry point for the published test cases and preserves terminal output. Stop interrupts loading/execution; execution has a 10-second timeout and captured output has a 20,000-character limit. Fork/PR checks remain available as separate compiled practice checks.
+- C# drafts save locally. Run code compiles and executes the original C# in a terminable browser worker using .NET and Roslyn. Check answer compiles a separate entry point for the published test cases and preserves terminal output. Stop interrupts loading/execution; execution has a 30-second timeout and captured output has a 20,000-character limit. Fork/PR checks remain available as separate compiled practice checks.
 - Theme controls are inside Account & Preferences. Navigation uses a small sidebar caret.
 
 ## Account architecture: next phase

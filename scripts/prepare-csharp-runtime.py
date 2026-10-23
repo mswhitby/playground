@@ -9,12 +9,16 @@ cdn='https://cdn.jsdelivr.net/npm/@wasmsharp/core@0.10.2/'
 for name in ['WasmSharpWorker.js','Compilation.js','initializeWasmSharpModule.js','dotnet.js']:
  s=(a.package/name).read_text()
  s=re.sub(r'^//# sourceMappingURL=.*$', '',s,flags=re.M)
+ if name=='WasmSharpWorker.js':
+  s=s.replace('./initializeWasmSharpModule.js', './initializeWasmSharpModule.js?v=3')
  if name=='dotnet.js':
   s=re.sub(r'^import (\w+) from "\./([^"\n]+\.(?:dll|wasm|dat))";',lambda m:'const '+m[1]+' = "'+cdn+m[2]+'";',s,flags=re.M)
   s=s.replace('from "./dotnet.runtime.js"','from "'+cdn+'dotnet.runtime.js"').replace('from "./dotnet.native.js"','from "'+cdn+'dotnet.native.js"')
   if re.search(r'^import \w+ from .*\.(dll|wasm|dat)',s,re.M):raise ValueError('Unadapted binary module import')
  if name=='initializeWasmSharpModule.js':
   s=s.replace('getDirectory(import.meta.url)',repr(cdn))
+  s=s.replace('.concat(satelliteAssemblies)', '')
+  s=s.replace('await compilationInterop.InitAsync(assemblies);', 'callbacks?.onMetadataLoad?.();\n    await compilationInterop.InitAsync(assemblies);')
  (root/name).write_text(s)
 shutil.copy2(a.package/'LICENSE',root/'LICENSE')
 print('Prepared pinned, licensed runtime loader modules. Binary runtime assets remain on the CDN.')
