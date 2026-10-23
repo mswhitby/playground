@@ -36,6 +36,6 @@ function editor(textarea,language='python'){
  editors.set(textarea,cm);return cm;
 }
 window.PlaygroundUI={markdown,editor};
-const auto=()=>{for(const t of document.querySelectorAll('textarea#code,textarea#debug-source'))editor(t,t.id==='debug-source'?'csharp':location.pathname.includes('computer-science-1')?'python':'csharp');for(const b of document.querySelectorAll('pre code:not([data-highlighted])'))hljs.highlightElement(b);for(const b of document.querySelectorAll('button:not(.CodeMirror button)')){b.classList.add('btn',b.classList.contains('secondary')?'btn-outline-primary':'btn-primary')}for(const s of document.querySelectorAll('select'))s.classList.add('form-select')};
+const auto=()=>{for(const t of document.querySelectorAll('textarea#code,textarea#debug-source'))editor(t,t.id==='debug-source'?'csharp':location.pathname.includes('computer-science-1')?'python':'csharp');for(const b of document.querySelectorAll('pre code:not([data-highlighted])'))hljs.highlightElement(b);for(const b of document.querySelectorAll('button:not(.CodeMirror button):not(.menu-caret):not(.menu-toggle):not(.icon-button)')){b.classList.add('btn',b.classList.contains('secondary')?'btn-outline-primary':'btn-primary')}for(const s of document.querySelectorAll('select'))s.classList.add('form-select')};
 new MutationObserver(()=>{if(!window.__uiScheduled){window.__uiScheduled=true;requestAnimationFrame(()=>{window.__uiScheduled=false;auto()})}}).observe(document.body,{childList:true,subtree:true});
 auto();document.dispatchEvent(new Event('playground-ui-ready'));
