@@ -17,6 +17,10 @@ jobs:
         with:
           repository: mswhitby/game-programming
           path: game-programming
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/mobile-app-dev
+          path: mobile-app-dev
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

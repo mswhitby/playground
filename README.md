@@ -6,20 +6,20 @@ One shared website, separate repositories for course content. The initial site i
 
 | Course | Source | Current status |
 |---|---|---|
-| Computer Science I | `mswhitby/computer-science-1` | Link to existing Python playground; content migration pending |
+| Computer Science I | `mswhitby/computer-science-1` | 24 original Markdown lessons, Python exercises and challenges |
 | Game Programming & Design | `mswhitby/game-programming` | 7 units, 11 lessons, 11 C# exercises, 22 checkpoint questions |
-| Mobile App Development | `mswhitby/mobile-app-dev` | Entry page prepared; course content not published |
+| Mobile App Development | `mswhitby/mobile-app-dev` | Four Markdown sample lessons: HTML, CSS, JavaScript, React |
 | Capstone | Repository not selected yet | Entry page prepared; course content not published |
 
-`public/` owns the shared header, course navigation, appearance settings, lesson rendering, code drafts, and checkpoint UI. `game-programming/course.json` owns lesson content. No copies of shared application code belong in course repositories.
+`public/` owns the shared header, course navigation, appearance settings, lesson rendering, code drafts, and checkpoint UI. Lesson bodies are ordinary Markdown in each curriculum repository. `course.json` contains navigation and exercise contracts, not prose. No copies of shared application code belong in course repositories.
 
 ## Build and publish
 
-Use Python 3 and Node 22+. No npm packages are required.
+Use Python 3 and Node 22+. Prebuilt browser assets are checked in. To rebuild the pinned Material Style, Markdown renderer, and highlighted editors, run `npm ci && npm run build:ui`.
 
 ```bash
 node --test tests/*.test.mjs
-python scripts/build.py --game-source ../game-programming
+python scripts/build.py --game-source ../game-programming --mobile-source ../mobile-app-dev
 python -m http.server 8080 --directory dist
 ```
 
@@ -64,3 +64,9 @@ The course now follows all six Unity Essentials missions in order, followed by t
 All four course areas and the Python lesson/challenge pages load `material.css` and `theme.js` from the central Playground. Color roles are generated from Google Material Color Utilities 0.4.0, Tonal Spot, purple seed #6750A4, 2025 specification. Native accessible controls implement the shared Material component styling. Appearance supports device setting, light, and dark; older preferences migrate and tabs synchronize. No additional runtime UI framework is required.
 
 Exercises use descriptive PascalCase C# methods and snake_case Python functions. Prompts, starters, and published examples agree. Older Solution/solution drafts are retained and accepted during migration; new starters use the new names.
+
+## Editing lesson content
+
+Python: edit the original `units/**/*.md` files in `computer-science-1`. Game and Mobile: edit `lessons/**/*.md` in their respective repositories. Use normal Markdown headings, bold vocabulary, inline code, lists, images, and fenced code; no fixed body template is required. GitHub renders previews. Exercise starters and check cases remain separate from the prose. Never replace teacher-authored text with shortened generated fields. Ask before changing the authoring format or imposing a new lesson structure.
+
+The Python site reads canonical Markdown and uses `docs/units/content/` as a network fallback; refresh it with `python scripts/publish-markdown.py` in that repository before publishing. Shared Playground builds package Game and Mobile Markdown alongside the site. Material Style 3.1.1 supplies the actual base components, with the reference purple palette and a small layout stylesheet.
