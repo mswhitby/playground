@@ -29,7 +29,7 @@ The site attempts to load the public Game Programming manifest from its canonica
 
 ## Current student experience
 
-- All four courses have entry routes; only Game Programming’s new units and the existing Python course have material.
+- All four courses have entry routes. Python and Game Programming have lessons and exercises; Mobile Development has four working sample lessons.
 - Quizzes grade locally with explanations, retry, best/latest results, and stable activity IDs.
 - Unity practice completion is explicitly self-reported and separate from quiz results.
 - C# drafts save locally. Run code compiles and executes the original C# in a terminable browser worker using .NET and Roslyn. Check answer compiles a separate entry point for the published test cases and preserves terminal output. Stop interrupts loading/execution; execution has a 30-second timeout and captured output has a 20,000-character limit. Fork/PR checks remain available as separate compiled practice checks.
@@ -58,10 +58,10 @@ The worker can be terminated on Stop, navigation, load timeout, or execution tim
 ## Guided debugging
 The Debugging page accepts standalone C# console programs and uses the same local compiler. Unity scripts must run in Unity; students can paste Unity Console errors for rule-based troubleshooting prompts. Expected behavior and drafts stay in browser storage. This is not a conversational AI tutor. No API key or student-code upload is required.
 
-The course now follows all six Unity Essentials missions in order, followed by the introductory Junior Programmer unit. The official tutorial outline appears on the course overview.
+The course now follows all six Unity Essentials missions in order, followed by the introductory Junior Programmer unit. Each mission links to its official Unity Learn companion.
 
 ## Shared Material design
-All four course areas and the Python lesson/challenge pages load `material.css` and `theme.js` from the central Playground. Color roles are generated from Google Material Color Utilities 0.4.0, Tonal Spot, purple seed #6750A4, 2025 specification. Native accessible controls implement the shared Material component styling. Appearance supports device setting, light, and dark; older preferences migrate and tabs synchronize. No additional runtime UI framework is required.
+All four course areas and the Python lesson/challenge pages load `material.css` and `theme.js` from the central Playground. The actual Material Style 3.1.1 stylesheet supplies the base components; the purple palette follows its theming reference. The shared CSS handles course layout, editors, and legacy Python surfaces. Appearance supports device setting, light, and dark; older preferences migrate and tabs synchronize. No additional runtime UI framework is required.
 
 Exercises use descriptive PascalCase C# methods and snake_case Python functions. Prompts, starters, and published examples agree. Older Solution/solution drafts are retained and accepted during migration; new starters use the new names.
 
