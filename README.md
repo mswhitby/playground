@@ -70,3 +70,7 @@ Exercises use descriptive PascalCase C# methods and snake_case Python functions.
 Python: edit the original `units/**/*.md` files in `computer-science-1`. Game and Mobile: edit `lessons/**/*.md` in their respective repositories. Use normal Markdown headings, bold vocabulary, inline code, lists, images, and fenced code; no fixed body template is required. GitHub renders previews. Exercise starters and check cases remain separate from the prose. Never replace teacher-authored text with shortened generated fields. Ask before changing the authoring format or imposing a new lesson structure.
 
 The Python site reads canonical Markdown and uses `docs/units/content/` as a network fallback; refresh it with `python scripts/publish-markdown.py` in that repository before publishing. Shared Playground builds package Game and Mobile Markdown alongside the site. Material Style 3.1.1 supplies the actual base components, with the reference purple palette and a small layout stylesheet.
+
+## Shared lesson layout
+
+CS1 is the layout reference for the other playgrounds: a full-height sidebar flush to the header and left edge, a unit or competency selector, lesson text beside the coding workspace, a draggable width divider, adjustable editor and output heights, output below the editor, and an expandable workspace. `public/study-layout.mjs` shares that behavior between Game Programming and Mobile Development. Keep course navigation attached to the page rather than presenting it as a floating card.
