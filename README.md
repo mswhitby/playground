@@ -59,3 +59,8 @@ The worker can be terminated on Stop, navigation, load timeout, or execution tim
 The Debugging page accepts standalone C# console programs and uses the same local compiler. Unity scripts must run in Unity; students can paste Unity Console errors for rule-based troubleshooting prompts. Expected behavior and drafts stay in browser storage. This is not a conversational AI tutor. No API key or student-code upload is required.
 
 The course now follows all six Unity Essentials missions in order, followed by the introductory Junior Programmer unit. The official tutorial outline appears on the course overview.
+
+## Shared Material design
+All four course areas and the Python lesson/challenge pages load `material.css` and `theme.js` from the central Playground. Color roles are generated from Google Material Color Utilities 0.4.0, Tonal Spot, purple seed #6750A4, 2025 specification. Native accessible controls implement the shared Material component styling. Appearance supports device setting, light, and dark; older preferences migrate and tabs synchronize. No additional runtime UI framework is required.
+
+Exercises use descriptive PascalCase C# methods and snake_case Python functions. Prompts, starters, and published examples agree. Older Solution/solution drafts are retained and accepted during migration; new starters use the new names.
