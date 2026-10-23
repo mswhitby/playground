@@ -32,7 +32,7 @@ The site attempts to load the public Game Programming manifest from its canonica
 - All four courses have entry routes; only Game Programming’s new units and the existing Python course have material.
 - Quizzes grade locally with explanations, retry, best/latest results, and stable activity IDs.
 - Unity practice completion is explicitly self-reported and separate from quiz results.
-- C# drafts save locally. Copy/download and open a real compiler; browser C# execution is not implemented. Fork/PR checks compile and test C# with .NET in the course repository.
+- C# drafts save locally. Run code compiles and executes the original C# in a terminable browser worker using .NET and Roslyn. Check answer compiles a separate entry point for the published test cases and preserves terminal output. Stop interrupts loading/execution; execution has a 10-second timeout and captured output has a 20,000-character limit. Fork/PR checks remain available as separate compiled practice checks.
 - Theme controls are inside Account & Preferences. Navigation uses a small sidebar caret.
 
 ## Account architecture: next phase
@@ -46,3 +46,11 @@ A single backend can then expose `/api/session`, `/api/progress`, and `/api/atte
 ## Curriculum alignment
 
 Game content links to official Unity Essentials, Junior Programmer, Player Control, and Basic Gameplay resources. These are original companion lessons and quizzes, not copies of Unity materials or claims of full pathway completion. Pathway references were checked 2026-10-23.
+
+## Browser C# runtime
+
+The runtime is pinned to `@wasmsharp/core@0.10.2` (Apache-2.0), loaded from jsDelivr. The local worker imports `WasmSharpWorker.js` directly; it does not import the package’s Comlink/unpkg entry point. The first use downloads the compiler/runtime; C# source is compiled and executed locally and is not sent to a code-execution service. The CDN serves runtime assets only. School networks must allow `cdn.jsdelivr.net`, as for the existing Python runtime.
+
+Our managed driver uses real Roslyn syntax trees and metadata references. Run compiles the original source unchanged and invokes its true entry point, including parameterless Main. Check adds a separate checker syntax tree and selects its startup class. Standard output/errors and actual compiler diagnostics return through a bounded protocol. This is synchronous console C# practice, not UnityEngine execution. `Console.ReadLine` and awaited asynchronous programs are not supported in this initial classroom runner. Practice results are client-side and must not be treated as tamper-proof grades.
+
+The worker can be terminated on Stop, navigation, load timeout, or execution timeout. It has no DOM access. As with any client-side editor, this does not turn browser results into a trusted assessment service.
