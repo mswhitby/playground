@@ -7,7 +7,7 @@ One shared website, separate repositories for course content. The initial site i
 | Course | Source | Current status |
 |---|---|---|
 | Computer Science I | `mswhitby/computer-science-1` | Link to existing Python playground; content migration pending |
-| Game Programming & Design | `mswhitby/game-programming` | 2 units, 8 lessons, 8 C# exercises, 16 checkpoint questions |
+| Game Programming & Design | `mswhitby/game-programming` | 7 units, 11 lessons, 11 C# exercises, 22 checkpoint questions |
 | Mobile App Development | `mswhitby/mobile-app-dev` | Entry page prepared; course content not published |
 | Capstone | Repository not selected yet | Entry page prepared; course content not published |
 
@@ -49,7 +49,7 @@ Game content links to official Unity Essentials, Junior Programmer, Player Contr
 
 ## Browser C# runtime
 
-The runtime is pinned to `@wasmsharp/core@0.10.2` (Apache-2.0), with runtime binaries loaded from jsDelivr. Vendored loader modules adapt the package’s bundler asset imports to pinned CDN URLs; regenerate them with `python scripts/prepare-csharp-runtime.py <extracted-package-directory>`. The local worker imports `WasmSharpWorker.js` directly; it does not import the package’s Comlink/unpkg entry point. The first use downloads the compiler/runtime; C# source is compiled and executed locally and is not sent to a code-execution service. The CDN serves runtime assets only. School networks must allow `cdn.jsdelivr.net`, as for the existing Python runtime.
+The runtime is pinned to `@wasmsharp/core@0.10.2` (Apache-2.0), with runtime binaries loaded from unpkg. Vendored loader modules adapt the package’s bundler asset imports to pinned CDN URLs; regenerate them with `python scripts/prepare-csharp-runtime.py <extracted-package-directory>`. The local worker imports `WasmSharpWorker.js` directly; it does not import the package’s Comlink/unpkg entry point. The first use downloads the compiler/runtime; C# source is compiled and executed locally and is not sent to a code-execution service. The CDN serves runtime assets only. C# runtime downloads use `unpkg.com`, which is allowed by the district course policy.
 
 Our managed driver uses real Roslyn syntax trees and metadata references. Run compiles the original source unchanged and invokes its true entry point, including parameterless Main. Check adds a separate checker syntax tree and selects its startup class. Standard output/errors and actual compiler diagnostics return through a bounded protocol. This is synchronous console C# practice, not UnityEngine execution. `Console.ReadLine` and awaited asynchronous programs are not supported in this initial classroom runner. Practice results are client-side and must not be treated as tamper-proof grades.
 

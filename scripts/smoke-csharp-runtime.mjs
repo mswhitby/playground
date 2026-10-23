@@ -12,7 +12,7 @@ const timer=setTimeout(()=>{console.error('Real C# runtime smoke test timed out'
 const temp=await mkdtemp(join(tmpdir(),'playground-csharp-'));
 const server=createServer(async(req,res)=>{try{const bytes=await readFile(join(pkg,basename(req.url)));res.writeHead(200,{'Content-Type':'application/octet-stream','Content-Length':bytes.length});res.end(bytes)}catch{res.writeHead(404);res.end()}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
-const base=`http://127.0.0.1:${server.address().port}/`,cdn='https://cdn.jsdelivr.net/npm/@wasmsharp/core@0.10.2/';
+const base=`http://127.0.0.1:${server.address().port}/`,cdn='https://unpkg.com/@wasmsharp/core@0.10.2/';
 const logger={log:console.log,info:console.info,debug:console.debug};
 try{
  let dotnet=await readFile(new URL('dotnet.js',root),'utf8');
