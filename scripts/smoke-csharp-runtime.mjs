@@ -34,6 +34,8 @@ try{
   ['descriptive-class','public class ScoreCalculator {public static int DoubleValue(int a)=>a*2;public static void Main(){}}',buildChecks([{call:'DoubleValue(3)',expected:'6'}],'ScoreCalculator'),r=>assert.equal(parseChecks(r.stdout,1)[0].passed,true)],
   ['top-level','System.Console.WriteLine("Top level");',null,r=>assert.equal(r.stdout,'Top level\n')]
  ];
+ const course=JSON.parse(await readFile(new URL("../../game-programming/course.json",import.meta.url),"utf8"));
+ for(const lesson of course.units.flatMap(u=>u.lessons))cases.push(["starter-"+lesson.id,lesson.exercise.starter,null,r=>assert.equal(r.compiled,true,r.diagnostics)]);
  let compilation;
  for(const [name,source,checks,verify] of cases){
   const code=buildDriver(source,{nonce:name,checks});
