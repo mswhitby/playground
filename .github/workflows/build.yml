@@ -21,9 +21,16 @@ jobs:
         with:
           repository: mswhitby/mobile-app-dev
           path: mobile-app-dev
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/uil
+          path: uil
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Build shared editor tools
+        working-directory: playground
+        run: npm ci && npm run build:ui
       - name: Test course contracts and quiz scoring
         working-directory: playground
         run: node --test tests/*.test.mjs
@@ -34,6 +41,9 @@ jobs:
           npm pack @wasmsharp/core@0.10.2 --pack-destination "$runtime_dir"
           tar -xzf "$runtime_dir/wasmsharp-core-0.10.2.tgz" -C "$runtime_dir"
           node scripts/smoke-csharp-runtime.mjs "$runtime_dir/package"
+      - name: Prepare verified Java practice tools
+        working-directory: playground
+        run: python scripts/prepare-java-runtime.py
       - name: Build one shared website
         working-directory: playground
         run: python scripts/build.py --game-source ../game-programming

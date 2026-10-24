@@ -10,6 +10,9 @@ import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/css/css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/jsx/jsx';
+import 'codemirror/addon/edit/matchbrackets';
+import 'codemirror/addon/edit/closebrackets';
+import 'codemirror/addon/comment/comment';
 hljs.registerLanguage('csharp',csharp);
 const editors=new WeakMap();
 function markdown(target,source,base){
@@ -20,8 +23,8 @@ function markdown(target,source,base){
 }
 function editor(textarea,language='python'){
  if(!textarea||editors.has(textarea))return editors.get(textarea);
- const mode={python:'python',csharp:'text/x-csharp',html:'htmlmixed',css:'css',javascript:'javascript',react:'jsx'}[language]||language;
- const cm=CodeMirror.fromTextArea(textarea,{mode,lineNumbers:true,indentUnit:4,tabSize:4,indentWithTabs:false,lineWrapping:false,viewportMargin:20,extraKeys:{Tab:cm=>cm.replaceSelection('    '),'Ctrl-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click(),'Cmd-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click()}});
+ const mode={python:'python',csharp:'text/x-csharp',java:'text/x-java',html:'htmlmixed',css:'css',javascript:'javascript',react:'jsx'}[language]||language;
+ const cm=CodeMirror.fromTextArea(textarea,{mode,autoCloseBrackets:true,matchBrackets:true,lineNumbers:true,indentUnit:4,tabSize:4,indentWithTabs:false,lineWrapping:false,viewportMargin:20,extraKeys:{'Ctrl-/':'toggleComment','Cmd-/':'toggleComment',Tab:cm=>cm.replaceSelection('    '),'Ctrl-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click(),'Cmd-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click()}});
  cm.getWrapperElement().setAttribute('aria-label',textarea.getAttribute('aria-label')||'Code editor');
  let syncing=false;
  cm.on('change',()=>{if(syncing)return;textarea.value=cm.getValue();textarea.dispatchEvent(new Event('input',{bubbles:true}))});

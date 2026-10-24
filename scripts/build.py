@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil,subprocess
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');p.add_argument('--uil-source',type=Path,default=root.parent/'uil');args=p.parse_args()
 source=args.game_source.resolve();course=json.loads((source/'course.json').read_text())
 subprocess.run(['node',str(root/'scripts/validate.mjs'),str(source/'course.json')],check=True)
 for unit in course['units']:
@@ -11,6 +11,7 @@ for unit in course['units']:
   if file.read_text()!=exercise['starter']:raise ValueError('Published starter differs from '+str(file))
 dist=root/'dist';shutil.rmtree(dist,ignore_errors=True);shutil.copytree(root/'public',dist)
 target=dist/'data/game-programming';target.mkdir(parents=True);shutil.copy2(source/'course.json',target/'course.json');shutil.copytree(source/'lessons',target/'lessons')
+shutil.copytree(args.uil_source,dist/'data/uil',ignore=shutil.ignore_patterns('.git','node_modules'))
 shutil.copytree(args.mobile_source,dist/'data/mobile-app-dev',ignore=shutil.ignore_patterns('.git','node_modules','docs'))
 (dist/'.nojekyll').write_text('')
 commit=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],text=True,capture_output=True)

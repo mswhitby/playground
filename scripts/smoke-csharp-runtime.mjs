@@ -31,6 +31,7 @@ try{
   ['exception','using System; class Program {static void Main(){Console.WriteLine("before");throw new InvalidOperationException("test error");}}',null,r=>{assert.equal(r.success,false);assert.match(r.stdout,/before/);assert.match(r.stderr,/InvalidOperationException: test error/)}],
   ['pass','public class Program {public static int DoubleValue(int a)=>a*2;public static void Main(){}}',buildChecks([{call:'DoubleValue(3)',expected:'6'}]),r=>assert.equal(parseChecks(r.stdout,1)[0].passed,true)],
   ['fail','public class Program {public static int DoubleValue(int a)=>a;public static void Main(){}}',buildChecks([{call:'DoubleValue(3)',expected:'6'}]),r=>assert.equal(parseChecks(r.stdout,1)[0].passed,false)],
+  ['descriptive-class','public class ScoreCalculator {public static int DoubleValue(int a)=>a*2;public static void Main(){}}',buildChecks([{call:'DoubleValue(3)',expected:'6'}],'ScoreCalculator'),r=>assert.equal(parseChecks(r.stdout,1)[0].passed,true)],
   ['top-level','System.Console.WriteLine("Top level");',null,r=>assert.equal(r.stdout,'Top level\n')]
  ];
  let compilation;

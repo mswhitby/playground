@@ -82,3 +82,11 @@ Mobile App & Web uses a collapsible, draggable console below its preview. It sta
 ## Future project workspace (not implemented)
 
 Add file tabs and a file tree for HTML/CSS/JavaScript projects and React component modules, keeping editable source files separate from rendered previews. React Native needs an Expo-capable preview rather than assuming the DOM preview can run every native API. Repository integration should let students select a repository/branch, open files, review a diff, then save a commit. Use the shared GitHub account system and narrowly scoped repository access, keep credentials on a session service, and detect conflicting changes before saving. GitHub sign-in alone does not provide repository write access or a progress database. These are later features, not changes to the Markdown curriculum authoring format.
+
+## UIL practice
+
+`mswhitby/uil` owns the original 40-question written practice and six programming activities. Edit lesson prose in Markdown, starters as `.java`, and question/test contracts in the separate manifests. The first 15 written questions follow the published topic sequence; questions 39–40 are discrete-answer free response. This is a starter set, not full topic coverage.
+
+Before building locally, run `python scripts/prepare-java-runtime.py`. It downloads the reviewed TeaVM compiler and libraries and verifies the hashes in `scripts/java-runtime.json`; builds fail if the upstream files change. The build workflow does this automatically. The runtime is included in deployment artifacts and loaded locally in terminable workers. Browser Java is basic computation practice, not a Java 26 runtime or full desktop library; file input practice is downloaded for a Java 26 IDE.
+
+The shared console now sits directly under the editor, above actions. Preview height is independent. Editors support wrapping selected text with brackets/quotes and Ctrl/Cmd+/ comments. Python challenge Run executes the student program; Check compares return values separately.
