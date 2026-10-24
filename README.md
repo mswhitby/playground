@@ -90,3 +90,9 @@ Add file tabs and a file tree for HTML/CSS/JavaScript projects and React compone
 Before building locally, run `python scripts/prepare-java-runtime.py`. It downloads the reviewed TeaVM compiler and libraries and verifies the hashes in `scripts/java-runtime.json`; builds fail if the upstream files change. The build workflow does this automatically. The runtime is included in deployment artifacts and loaded locally in terminable workers. Browser Java is basic computation practice, not a Java 26 runtime or full desktop library; file input practice is downloaded for a Java 26 IDE.
 
 The shared console now sits directly under the editor, above actions. Preview height is independent. Editors support wrapping selected text with brackets/quotes and Ctrl/Cmd+/ comments. Python challenge Run executes the student program; Check compares return values separately.
+
+## Guided Mobile App & Web projects
+
+Mini-projects have their own `#/course/mobile-app-dev/projects` browsing page, course collection, and `#/course/mobile-app-dev/project/<id>/<step>` route, distinct from competency lessons. Club Connect starts with one HTML source file containing style and script sections. Markdown walkthroughs, starter, and finished example live in `mswhitby/mobile-app-dev/projects/club-connect/`. All steps share a single device-local draft; related lesson drafts stay separate. The finished example is a collapsible comparison, never an automatic replacement of student work.
+
+The project preview keeps an opaque-origin sandbox and enables form events for the signup exercise. An injected `form-action 'none'` content policy prevents native form transmission. Checks exercise actual validation and repeated submit behavior in the preview. No real enrollment, backend, or personal-information storage is implemented.

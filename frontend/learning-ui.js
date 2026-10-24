@@ -24,7 +24,7 @@ function markdown(target,source,base){
 function editor(textarea,language='python'){
  if(!textarea||editors.has(textarea))return editors.get(textarea);
  const mode={python:'python',csharp:'text/x-csharp',java:'text/x-java',html:'htmlmixed',css:'css',javascript:'javascript',react:'jsx'}[language]||language;
- const cm=CodeMirror.fromTextArea(textarea,{mode,autoCloseBrackets:true,matchBrackets:true,lineNumbers:true,indentUnit:4,tabSize:4,indentWithTabs:false,lineWrapping:false,viewportMargin:20,extraKeys:{'Ctrl-/':'toggleComment','Cmd-/':'toggleComment',Tab:cm=>cm.replaceSelection('    '),'Ctrl-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click(),'Cmd-Enter':()=>document.querySelector('#run-code,#run,#mobile-run')?.click()}});
+ const cm=CodeMirror.fromTextArea(textarea,{mode,autoCloseBrackets:true,matchBrackets:true,lineNumbers:true,indentUnit:4,tabSize:4,indentWithTabs:false,lineWrapping:false,viewportMargin:20,extraKeys:{'Ctrl-/':'toggleComment','Cmd-/':'toggleComment',Tab:cm=>cm.replaceSelection('    '),'Ctrl-Enter':()=>document.querySelector('#run-code,#run,#mobile-run,#project-run')?.click(),'Cmd-Enter':()=>document.querySelector('#run-code,#run,#mobile-run,#project-run')?.click()}});
  cm.getWrapperElement().setAttribute('aria-label',textarea.getAttribute('aria-label')||'Code editor');
  let syncing=false;
  cm.on('change',()=>{if(syncing)return;textarea.value=cm.getValue();textarea.dispatchEvent(new Event('input',{bubbles:true}))});
