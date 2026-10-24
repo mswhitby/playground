@@ -74,3 +74,11 @@ The Python site reads canonical Markdown and uses `docs/units/content/` as a net
 ## Shared lesson layout
 
 CS1 is the layout reference for the other playgrounds: a full-height sidebar flush to the header and left edge, a unit or competency selector, lesson text beside the coding workspace, a draggable width divider, adjustable editor and output heights, output below the editor, and an expandable workspace. `public/study-layout.mjs` shares that behavior between Game Programming and Mobile Development. Keep course navigation attached to the page rather than presenting it as a floating card.
+
+## Browser console
+
+Mobile App & Web uses a collapsible, draggable console below its preview. It starts closed, counts actual log/warning/error entries, opens for errors, and supports clearing. Successful rendering does not print a synthetic ready message. All course output panes use Material Style's selected surface/text roles.
+
+## Future project workspace (not implemented)
+
+Add file tabs and a file tree for HTML/CSS/JavaScript projects and React component modules, keeping editable source files separate from rendered previews. React Native needs an Expo-capable preview rather than assuming the DOM preview can run every native API. Repository integration should let students select a repository/branch, open files, review a diff, then save a commit. Use the shared GitHub account system and narrowly scoped repository access, keep credentials on a session service, and detect conflicting changes before saving. GitHub sign-in alone does not provide repository write access or a progress database. These are later features, not changes to the Markdown curriculum authoring format.
