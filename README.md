@@ -133,3 +133,34 @@ a database timestamp and receipt. Draft editing continues afterward. A later
 explicit hand-in creates another snapshot. A passing practice check is displayed
 as practice evidence, never as a submitted assignment. Existing practice history
 is not migrated into submissions. Teacher review access is not configured yet.
+
+
+### Class sections and teacher dashboard
+
+Apply the teacher dashboard setup supplied with this release once in Supabase SQL
+Editor (it includes submission storage if that earlier setup was skipped). The
+classroom migration is `202610240003_classrooms.sql`. Teacher access is derived
+from verified `auth.identities` GitHub provider IDs 63321092 (deoncarlette) and
+104539455 (deandrawhitby), never editable user metadata. Both accounts share the
+mswhitby teacher group. Private classroom tables have no browser table grants;
+intentional authenticated RPCs check teacher group or own membership on every call.
+
+Teachers open `#/teacher`, create a section for a course, share its join code, and
+approve recognizable student requests. Students open `#/classes`; the join form
+explains sharing before requesting consent. Pending or removed members expose no
+course work or activity to a teacher. Removing/leaving stops teacher access to that
+student's records in that section. Teachers can see practice summaries, check counts,
+and immutable submitted copies for their approved roster and the section course.
+Unfinished draft source remains private.
+
+Activity signals are sent only for signed-in, approved class members while using
+an activity. Visible pages send a heartbeat about every 30 seconds; interaction
+signals are throttled to at most once per 15 seconds. No key contents, clipboard,
+window titles, browsing outside the site, or mouse coordinates are stored. The
+private activity table holds a latest snapshot per tab; rows older than 24 hours
+are cleaned during a later approved signal. The dashboard refreshes every 20 seconds
+while visible and uses server timestamps. Recently interacting = visible heartbeat
+within 65 seconds plus interaction within two minutes; viewing page = visible
+heartbeat without recent interaction; otherwise no recent signal. Multiple tabs
+are combined. These are browser-reported clues, not attendance or verified effort.
+Guests send no class signals. No external analytics were added.

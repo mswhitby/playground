@@ -1,3 +1,4 @@
+import {ClassroomClient} from '../public/classroom-client.mjs';
 import {SubmissionService,mountSubmission} from '../public/submissions.mjs';
 import {createClient} from '@supabase/supabase-js';
 import {AccountCache,describeKey,acceptedProgress} from '../public/account-model.mjs';
@@ -6,7 +7,7 @@ const PROJECT_URL='https://lndzhmwvooqfrqcafhut.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_o5PgBG-pF2GzPZxTv4oRmA_s0OeJ9OM';
 const callback=location.origin+'/playground/auth-callback.html';
 const client=createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{storageKey:'playground-auth-v1',flowType:'pkce',detectSessionInUrl:false,persistSession:true,autoRefreshToken:true},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(12000)]):AbortSignal.timeout(12000)})}});
-let user=null,sync=null,cache=null,submissions=null,status='Checking your account…',hydrated=false,leaving=false;
+let user=null,sync=null,cache=null,submissions=null,classroom=null,status='Checking your account…',hydrated=false,leaving=false;
 const native=(()=>{try{const s=localStorage;s.getItem('playground-storage-check');return s}catch{
  const values=new Map();return {get length(){return values.size},key:i=>[...values.keys()][i]??null,getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)};
 }})();
@@ -28,6 +29,9 @@ function render(){
  const message=document.createElement('p');message.setAttribute('role','status');message.textContent=status;panel.append(message);
  if(!hydrated)return;
  if(!user){panel.append(button('Sign in with GitHub',signIn));return}
+ const classLink=document.createElement('a');classLink.href='/playground/#/classes';classLink.textContent='My classes';panel.append(classLink);
+ if(classroom?.context.memberships.some(m=>m.status==='approved')){const shared=document.createElement('p');shared.textContent='Recent activity on class activities is shared with your approved class teacher. Manage this in My classes.';panel.append(shared)}
+ if(classroom?.context.is_teacher){const teacher=document.createElement('a');teacher.href='/playground/#/teacher';teacher.textContent='Teacher dashboard';panel.append(teacher)}
  panel.append(button('Sync now',()=>sync?.flush()),button('Sign out',signOut));
  if(cache.guestKeys().length)panel.append(button('Import my guest work',importGuest));
  if(sync?.queue.length)panel.append(button('Download unsynced backup',backupDownload));
@@ -71,14 +75,14 @@ function summaries(){
  return [];
 }
 export const Account={
- get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
+ get classroom(){return classroom},get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
  signIn,signOut,summaries,
  async submissionHistory(){
   if(!user)return [];
   const {data,error}=await client.from('playground_submissions').select('id,course_id,activity_id,submitted_at').eq('user_id',user.id).order('submitted_at',{ascending:false}).limit(100);
   if(error)throw error;return data;
  },
- mountSubmission(options){return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');return submissions.submit(snapshot)}})},
+ mountSubmission(options){classroom?.setActivity(options.course_id,options.activity_id);return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:async snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');const receipt=await submissions.submit(snapshot);classroom?.signalSubmission();return receipt}})},
  recordAttempt(course,activity,kind,result){if(user&&sync)sync.attempt(course,activity,kind,result)},
  recordProject(id,step,results){const key='playground:mobile-project-check:'+id+':'+step;Account.storage.setItem(key,JSON.stringify({passed:results.every(r=>r.pass),passedCases:results.filter(r=>r.pass).length,totalCases:results.length,updatedAt:new Date().toISOString()}))},
  async flush(){await sync?.flush()}
@@ -95,11 +99,13 @@ async function start(){
  }
  const {data,error}=await client.auth.getSession();user=error?null:data.session?.user||null;
  cache=new AccountCache(native,user?.id||null,(...args)=>sync?.write(...args));
+ classroom=new ClassroomClient(client,Account);const classroomReady=classroom.start();
  if(user){
   submissions=new SubmissionService(client,user.id);
   try{sync=new PracticeSync({client,cache,userId:user.id,storage:native,onStatus:update});await sync.hydrate()}
   catch{status='Signed in. Cloud sync is unavailable; your account work stays on this device.'}
  }else status='Sign in to keep practice and drafts across computers. Guest work stays on this device.';
+ await classroomReady;
  hydrated=true;render();
  client.auth.onAuthStateChange((_event,session)=>{if(!leaving&&(session?.user?.id||null)!==(user?.id||null)){leaving=true;document.body.inert=true;setTimeout(()=>location.reload(),0)}});
  window.addEventListener('online',()=>sync?.flush());
