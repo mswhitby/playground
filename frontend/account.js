@@ -1,3 +1,4 @@
+import {SubmissionService,mountSubmission} from '../public/submissions.mjs';
 import {createClient} from '@supabase/supabase-js';
 import {AccountCache,describeKey,acceptedProgress} from '../public/account-model.mjs';
 import {PracticeSync} from '../public/account-sync.mjs';
@@ -5,7 +6,7 @@ const PROJECT_URL='https://lndzhmwvooqfrqcafhut.supabase.co';
 const PUBLISHABLE_KEY='sb_publishable_o5PgBG-pF2GzPZxTv4oRmA_s0OeJ9OM';
 const callback=location.origin+'/playground/auth-callback.html';
 const client=createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{storageKey:'playground-auth-v1',flowType:'pkce',detectSessionInUrl:false,persistSession:true,autoRefreshToken:true},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(12000)]):AbortSignal.timeout(12000)})}});
-let user=null,sync=null,cache=null,status='Checking your account…',hydrated=false,leaving=false;
+let user=null,sync=null,cache=null,submissions=null,status='Checking your account…',hydrated=false,leaving=false;
 const native=(()=>{try{const s=localStorage;s.getItem('playground-storage-check');return s}catch{
  const values=new Map();return {get length(){return values.size},key:i=>[...values.keys()][i]??null,getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)};
 }})();
@@ -72,6 +73,12 @@ function summaries(){
 export const Account={
  get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
  signIn,signOut,summaries,
+ async submissionHistory(){
+  if(!user)return [];
+  const {data,error}=await client.from('playground_submissions').select('id,course_id,activity_id,submitted_at').eq('user_id',user.id).order('submitted_at',{ascending:false}).limit(100);
+  if(error)throw error;return data;
+ },
+ mountSubmission(options){return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');return submissions.submit(snapshot)}})},
  recordAttempt(course,activity,kind,result){if(user&&sync)sync.attempt(course,activity,kind,result)},
  recordProject(id,step,results){const key='playground:mobile-project-check:'+id+':'+step;Account.storage.setItem(key,JSON.stringify({passed:results.every(r=>r.pass),passedCases:results.filter(r=>r.pass).length,totalCases:results.length,updatedAt:new Date().toISOString()}))},
  async flush(){await sync?.flush()}
@@ -89,6 +96,7 @@ async function start(){
  const {data,error}=await client.auth.getSession();user=error?null:data.session?.user||null;
  cache=new AccountCache(native,user?.id||null,(...args)=>sync?.write(...args));
  if(user){
+  submissions=new SubmissionService(client,user.id);
   try{sync=new PracticeSync({client,cache,userId:user.id,storage:native,onStatus:update});await sync.hydrate()}
   catch{status='Signed in. Cloud sync is unavailable; your account work stays on this device.'}
  }else status='Sign in to keep practice and drafts across computers. Guest work stays on this device.';

@@ -122,3 +122,14 @@ computers to clear the account cache. Unsynced work can be downloaded before sig
 Run `npm test` for cache separation, queue ownership, retry, and conflict tests.
 After deployment, verify a real GitHub round trip, a draft and check result on a
 second device, and sign-out before treating the integration as fully verified.
+
+
+### Explicit submissions
+
+Apply `supabase/migrations/202610240002_submissions.sql` once to add the separate
+hand-in table. Draft sync and unlimited practice checks never create submissions.
+Only **Submit work**, followed by confirmation, saves an immutable snapshot with
+a database timestamp and receipt. Draft editing continues afterward. A later
+explicit hand-in creates another snapshot. A passing practice check is displayed
+as practice evidence, never as a submitted assignment. Existing practice history
+is not migrated into submissions. Teacher review access is not configured yet.
