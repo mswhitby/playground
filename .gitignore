@@ -7,3 +7,6 @@ public/vendor/teavm/*.wasm
 public/vendor/teavm/*.bin
 
 public/account.js
+public/vendor/fonts/*.woff2
+
+node_modules

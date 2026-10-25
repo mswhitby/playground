@@ -1,0 +1,23 @@
+[
+  {
+    "family": "DM Sans",
+    "file": "dm-sans.woff2",
+    "url": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K6z9mXg.woff2",
+    "sha256": "468d56b6b25b05b70190b6c233d773f6f1770e8579827ce022a57f03fa8002fb",
+    "weight": "400 700"
+  },
+  {
+    "family": "Fraunces",
+    "file": "fraunces.woff2",
+    "url": "https://fonts.gstatic.com/s/fraunces/v38/6NU78FyLNQOQZAnv9bYEvDiIdE9Ea92uemAk_WBq8U_9v0c2Wa0KxC9TeP2Xz5c.woff2",
+    "sha256": "48282a415ec22e31beaf0a0666e6fae0c8cbddcd0b1f6e729f27c3ade8a64e43",
+    "weight": "400 700"
+  },
+  {
+    "family": "Space Mono",
+    "file": "space-mono.woff2",
+    "url": "https://fonts.gstatic.com/s/spacemono/v17/i7dPIFZifjKcF5UAWdDRYEF8RXi4EwQ.woff2",
+    "sha256": "e0c8e616bda27642f4c3cebaecff6525d901e73afc8a227cbbb0f2af4810f300",
+    "weight": "400"
+  }
+]

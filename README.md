@@ -164,3 +164,13 @@ within 65 seconds plus interaction within two minutes; viewing page = visible
 heartbeat without recent interaction; otherwise no recent signal. Multiple tabs
 are combined. These are browser-reported clues, not attendance or verified effort.
 Guests send no class signals. No external analytics were added.
+
+
+### Visual system
+
+`public/visual.css` adds shared typography, surfaces, and light/dark colors while
+preserving the existing course layouts and actions. DM Sans, Fraunces, and Space
+Mono are self-hosted under `public/vendor/fonts/`; OFL licenses are checked in.
+Run `python scripts/prepare-fonts.py` before packaging to fetch the pinned font
+assets with SHA-256 verification. No Canva SDK, telemetry, external font request,
+or content from the reference's generated application is used.
