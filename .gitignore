@@ -5,3 +5,5 @@ node_modules/
 
 public/vendor/teavm/*.wasm
 public/vendor/teavm/*.bin
+
+public/account.js

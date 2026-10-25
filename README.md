@@ -96,3 +96,29 @@ The shared console now sits directly under the editor, above actions. Preview he
 Mini-projects have their own `#/course/mobile-app-dev/projects` browsing page, course collection, and `#/course/mobile-app-dev/project/<id>/<step>` route, distinct from competency lessons. Club Connect starts with one HTML source file containing style and script sections. Markdown walkthroughs, starter, and finished example live in `mswhitby/mobile-app-dev/projects/club-connect/`. All steps share a single device-local draft; related lesson drafts stay separate. The finished example is a collapsible comparison, never an automatic replacement of student work.
 
 The project preview keeps an opaque-origin sandbox and enables form events for the signup exercise. An injected `form-action 'none'` content policy prevents native form transmission. Checks exercise actual validation and repeated submit behavior in the preview. No real enrollment, backend, or personal-information storage is implemented.
+
+
+## Student accounts
+
+GitHub sign-in uses Supabase PKCE. Public browser configuration lives in
+`frontend/account.js`; GitHub client secrets belong only in Supabase's provider
+settings. Build the account bundle with `npm run build:ui`.
+
+Apply `supabase/migrations/202610240001_progress.sql` once through the Supabase SQL
+editor. Set the Site URL to `https://www.mswhitby.com/playground/` and allow
+`https://www.mswhitby.com/playground/auth-callback.html` as a redirect. Enable the
+GitHub provider using an OAuth app with the Supabase `/auth/v1/callback` address.
+
+Practice summaries, append-only attempts, and drafts are scoped to the signed-in
+Supabase user through RLS. Browser checks and self-reports are practice evidence,
+not verified grades. No teacher access is granted by this migration.
+
+Guest data remains on its original device. Signed-in data uses a separate local
+cache per account; guest import requires an explicit choice. Offline changes stay
+queued. Draft updates use server revisions to detect changes from another device;
+conflicting copies require a choice and preserve a local backup. Sign out on shared
+computers to clear the account cache. Unsynced work can be downloaded before sign-out.
+
+Run `npm test` for cache separation, queue ownership, retry, and conflict tests.
+After deployment, verify a real GitHub round trip, a draft and check result on a
+second device, and sign-out before treating the integration as fully verified.
