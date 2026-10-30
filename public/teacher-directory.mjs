@@ -1,29 +1,59 @@
 // Teacher-only account directory: all registered GitHub accounts, not a pasted roster.
+import {mountGoogleSheetRoster,normalizeGithub} from './google-sheet-roster.mjs?v=1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const labelFor=course=>({'computer-science-1':'Computer Science I','game-programming':'Game Programming & Design','mobile-app-dev':'Mobile App & Web',uil:'UIL Computer Science',capstone:'Capstone'})[course]||course;
 
 export function mountTeacherDirectory(container,service,{classes=[],onChanged=async()=>{}}={}){
- let people=[],sections=classes,disposed=false,request=0,selected=new Set(),filter='all',query='';
+ let people=[],sections=classes,disposed=false,request=0,selected=new Set(),filter='all',query='',sheetRows=[],sheetByGithub=new Map(),duplicateGithub=new Set(),sheetPeriod='all';
  container.innerHTML=`<div class="directory-heading"><h2>Registered accounts</h2><span id="directory-count" role="status"></span></div>
  <p>Every GitHub account registered on this site appears here, including people who haven't joined a class. Mark private clients separately, then organize students into sections.</p>
+ <details class="panel" id="sheet-mapping" open><summary>Google Sheet roster (optional)</summary><div id="sheet-linker"></div><p id="sheet-match-summary" role="status"></p><div id="sheet-unmatched"></div></details>
  <div class="directory-controls">
   <label>Find an account<input id="directory-search" type="search" placeholder="Name, GitHub username, or section" autocomplete="off"></label>
-  <label>Show<select id="directory-filter"><option value="all">All accounts</option><option value="enrolled">Enrolled students</option><option value="unassigned">Unassigned students</option><option value="client">Private clients</option></select></label>
+  <label>Show<select id="directory-filter"><option value="all">All accounts</option><option value="enrolled">Enrolled students</option><option value="unassigned">Unassigned students</option><option value="client">Private clients</option><option value="without-sheet">No Sheet match</option></select></label>
+  <label id="sheet-period-label" hidden>Sheet class period<select id="sheet-period"><option value="all">All periods</option></select></label>
   <button id="directory-refresh" class="secondary" type="button">Refresh accounts</button>
  </div>
  <div class="directory-bulk"><label><input id="directory-select-visible" type="checkbox"> Select visible students</label><label>Add selected to <select id="directory-bulk-class"></select></label><button id="directory-bulk-add" type="button">Add selected</button></div>
  <p id="directory-status" role="status"></p><div id="directory-list"><p>Loading accounts…</p></div>`;
  const $=id=>container.querySelector('#'+id);
+ const sheetBridge=mountGoogleSheetRoster($('sheet-linker'),{onRows:rows=>applySheetRows(rows)});
  const tell=message=>{$('directory-status').textContent=message};
  const active=p=>p.memberships.filter(m=>m.status==='approved'||m.status==='pending');
+ const match=p=>sheetByGithub.get(normalizeGithub(p.github_account));
  const visible=()=>people.filter(p=>{
   const memberships=active(p);
   if(filter==='enrolled'&&(p.kind!=='student'||!memberships.length))return false;
   if(filter==='unassigned'&&(p.kind!=='student'||memberships.length))return false;
   if(filter==='client'&&p.kind!=='client')return false;
+  if(filter==='without-sheet'&&match(p))return false;
+  if(sheetPeriod!=='all'&&match(p)?.period!==sheetPeriod)return false;
   const search=query.toLocaleLowerCase();
-  return !search||[p.github_account,p.display_name,...memberships.map(m=>m.name),...memberships.map(m=>labelFor(m.course_id))].some(s=>String(s).toLocaleLowerCase().includes(search));
+  return !search||[p.github_account,match(p)?.name,match(p)?.period,...memberships.map(m=>m.name),...memberships.map(m=>labelFor(m.course_id))].some(s=>String(s).toLocaleLowerCase().includes(search));
  });
+ function applySheetRows(rows){
+  sheetRows=Array.isArray(rows)?rows:[];
+  duplicateGithub=new Set();
+  sheetByGithub=new Map();
+  for(const entry of sheetRows){
+   if(sheetByGithub.has(entry.github)){duplicateGithub.add(entry.github);sheetByGithub.delete(entry.github)}
+   else if(!duplicateGithub.has(entry.github))sheetByGithub.set(entry.github,entry);
+  }
+  const periods=[...new Set(sheetRows.map(r=>r.period).filter(Boolean))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
+  $('sheet-period').innerHTML='<option value="all">All periods</option>'+periods.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  sheetPeriod='all';
+  $('sheet-period-label').hidden=!sheetRows.length;
+  const registered=new Set(people.map(p=>normalizeGithub(p.github_account)));
+  const matched=people.filter(p=>match(p)&&p.kind==='student').length;
+  const missing=[...sheetByGithub.values()].filter(r=>!registered.has(r.github));
+  $('sheet-match-summary').textContent=sheetRows.length
+   ? matched+' of '+people.filter(p=>p.kind==='student').length+' registered student accounts matched to Sheet usernames. '+missing.length+' Sheet usernames have no registered account. '+duplicateGithub.size+' duplicate GitHub usernames in the Sheet.'
+   : 'No Sheet loaded. Registered accounts can still be managed by GitHub username.';
+  $('sheet-unmatched').innerHTML=missing.length
+   ? '<details><summary>Sheet usernames not registered ('+missing.length+')</summary><p>These students must sign in to Playground with GitHub before you can assign their accounts.</p><ul>'+missing.slice(0,200).map(r=>`<li>@${esc(r.github)} (${esc(r.period||'No period')})</li>`).join('')+'</ul></details>'
+   :'';
+  render();
+ }
  function classSelectOptions(value=''){
   return '<option value="">Select section…</option>'+sections.map(c=>`<option value="${esc(c.id)}" ${c.id===value?'selected':''}>${esc(c.name)} · ${esc(labelFor(c.course_id))}</option>`).join('');
  }
@@ -41,10 +71,10 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   $('directory-select-visible').checked=allVisibleStudents.length>0&&allVisibleStudents.every(p=>selected.has(p.user_id));
   $('directory-select-visible').indeterminate=allVisibleStudents.some(p=>selected.has(p.user_id))&&!$('directory-select-visible').checked;
   $('directory-list').innerHTML=shown.length?shown.map(p=>{
-   const memberships=active(p);
+   const memberships=active(p),sheet=match(p);
    return `<article class="directory-person" data-person="${esc(p.user_id)}">
      <div class="directory-person-id"><label class="directory-person-select"><input type="checkbox" data-check="${esc(p.user_id)}" ${selected.has(p.user_id)?'checked':''} ${p.kind==='client'?'disabled':''} aria-label="Select ${esc(p.github_account)}">
-       <span><strong>${esc(p.display_name)}</strong><small>@${esc(p.github_account)}</small></span></label></div>
+       <span><strong>${esc(sheet?.name||p.github_account)}</strong><small>@${esc(p.github_account)}${sheet?.period?' · Sheet period '+esc(sheet.period):''}</small></span></label></div>
      <div class="directory-kind"><label>Account type<select data-kind="${esc(p.user_id)}"><option value="student" ${p.kind==='student'?'selected':''}>Student</option><option value="client" ${p.kind==='client'?'selected':''}>Private client</option></select></label></div>
      <div class="directory-sections"><div class="directory-label">Class sections</div>${memberships.length?memberships.map(m=>`<div class="directory-section"><span>${esc(m.name)} <small>· ${esc(labelFor(m.course_id))}${m.status==='pending'?' · pending':''}</small></span><button class="secondary" data-move="${esc(p.user_id)}" data-from="${esc(m.class_id)}" type="button" ${p.kind==='client'?'disabled':''}>Move</button><button class="secondary" data-remove="${esc(p.user_id)}" data-from="${esc(m.class_id)}" type="button">Remove</button></div>`).join(''):'<span class="directory-unassigned">No class assignment</span>'}</div>
      <div class="directory-assign"><label>Destination section<select data-target="${esc(p.user_id)}" ${p.kind==='client'?'disabled':''}>${classSelectOptions()}</select></label><button type="button" data-add="${esc(p.user_id)}" ${p.kind==='client'||!sections.length?'disabled':''}>Add</button></div>
@@ -58,6 +88,7 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
    const rows=await service.rpc('playground_teacher_directory');
    if(disposed||ticket!==request)return;
    people=Array.isArray(rows)?rows:[];
+   if(sheetRows.length)applySheetRows(sheetRows);
    selected=new Set([...selected].filter(id=>people.some(p=>p.user_id===id&&p.kind==='student')));
    render();
   }catch(error){
@@ -116,6 +147,7 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   }
  };
  $('directory-search').oninput=e=>{query=e.target.value;render()};
+ $('sheet-period').onchange=e=>{sheetPeriod=e.target.value;render()};
  $('directory-bulk-add').onclick=async()=>{
   const dest=$('directory-bulk-class').value;
   if(!dest){tell('Select a destination section for the chosen students.');return}
@@ -134,5 +166,5 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   finally{if(b.isConnected)b.disabled=false}
  };
  refreshControls();
- return {reload,setClasses(newClasses){sections=newClasses;render()},dispose(){disposed=true;request++}};
+ return {reload,setClasses(newClasses){sections=newClasses;render()},dispose(){disposed=true;request++;sheetBridge.dispose();sheetRows=[];sheetByGithub.clear()}};
 }
