@@ -33,7 +33,7 @@ do $$ declare row jsonb;begin
  raise exception 'Move retained membership in source class';end if;
  if not exists(select 1 from jsonb_array_elements(row->'memberships') x where x->>'class_id'=current_setting('test.manual_class') and x->>'status'='approved') then
  raise exception 'Move did not activate destination';end if;
-end $;
+end $$;
 -- A private client cannot be accidentally assigned a classroom.
 select public.playground_teacher_set_account_kind('00000000-0000-0000-0000-000000000004','client');
 do $$ begin
