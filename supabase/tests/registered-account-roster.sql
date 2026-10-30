@@ -26,16 +26,19 @@ select public.playground_teacher_bulk_add(array[
  current_setting('test.manual_class')::uuid);
 select public.playground_teacher_manage_membership('00000000-0000-0000-0000-000000000004',
  'move',current_setting('test.manual_class')::uuid,current_setting('test.second_class')::uuid);
-do $$ begin
- if exists(select 1 from playground_private.members where class_id=current_setting('test.second_class')::uuid and user_id='00000000-0000-0000-0000-000000000004' and status='approved') then
+do $ declare row jsonb;begin
+ select m into row from jsonb_array_elements(public.playground_teacher_directory()) m
+ where m->>'github_account'='LearnerB';
+ if exists(select 1 from jsonb_array_elements(row->'memberships') x where x->>'class_id'=current_setting('test.second_class')) then
  raise exception 'Move retained membership in source class';end if;
- if not exists(select 1 from playground_private.members where class_id=current_setting('test.manual_class')::uuid and user_id='00000000-0000-0000-0000-000000000004' and status='approved') then
+ if not exists(select 1 from jsonb_array_elements(row->'memberships') x where x->>'class_id'=current_setting('test.manual_class') and x->>'status'='approved') then
  raise exception 'Move did not activate destination';end if;
-end $$;
+end $;
 -- A private client cannot be accidentally assigned a classroom.
 select public.playground_teacher_set_account_kind('00000000-0000-0000-0000-000000000004','client');
 do $$ begin
- if exists(select 1 from playground_private.members where user_id='00000000-0000-0000-0000-000000000004' and status='approved') then raise exception 'Client still enrolled';end if;
+ if exists(select 1 from jsonb_array_elements(public.playground_teacher_directory()) p,
+ jsonb_array_elements(p->'memberships') x where p->>'github_account'='LearnerB' and x->>'status'='approved') then raise exception 'Client still enrolled';end if;
  begin
   perform public.playground_teacher_manage_membership('00000000-0000-0000-0000-000000000004','add',current_setting('test.second_class')::uuid,null);
   raise exception 'Client joined section';
@@ -43,7 +46,7 @@ do $$ begin
 end $$;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000004';
 do $$ begin
- if exists(select 1 from playground_private.members where user_id=auth.uid() and status='approved') then
+ if exists(select 1 from jsonb_array_elements(public.playground_classroom_context()->'memberships') x where x->>'status'='approved') then
  raise exception 'Client could view own class after classification';end if;
  begin perform public.playground_teacher_directory();raise exception 'Student read full account directory';
  exception when insufficient_privilege then null;end;
@@ -54,7 +57,8 @@ do $$ declare data jsonb;begin
  data:=public.playground_teacher_directory();
  if (select count(*) from jsonb_array_elements(data) a where a->>'github_account'='LearnerB' and a->>'kind'='student')<>1
  then raise exception 'Client classification not reversible';end if;
- if exists(select 1 from playground_private.members where user_id='00000000-0000-0000-0000-000000000004' and status='approved') then
+ if exists(select 1 from jsonb_array_elements(data) p,
+ jsonb_array_elements(p->'memberships') m where p->>'github_account'='LearnerB' and m->>'status'='approved') then
  raise exception 'Reclassified client unexpectedly rejoined a class';end if;
 end $$;
 -- Teacher account must never be treated as student.
