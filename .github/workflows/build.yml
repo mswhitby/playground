@@ -34,6 +34,9 @@ jobs:
       - name: Test course contracts and quiz scoring
         working-directory: playground
         run: node --test tests/*.test.mjs
+      - name: Test classroom database migrations and access rules
+        working-directory: playground
+        run: npm run test:database
       - name: Test actual C# compilation and execution
         working-directory: playground
         run: |
