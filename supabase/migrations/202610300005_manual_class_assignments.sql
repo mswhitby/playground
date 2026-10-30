@@ -71,7 +71,7 @@ declare
  raw_username text;
  requested text;
  normalized text;
- display_name text;
+ v_display_name text;
  seen text[] := array[]::text[];
  student_id uuid;
  matches integer;
@@ -112,25 +112,25 @@ begin
   end if;
   select coalesce(nullif(i.identity_data->>'user_name',''),
                   nullif(i.identity_data->>'preferred_username',''),requested)
-  into display_name from auth.identities i
+  into v_display_name from auth.identities i
   where i.user_id=student_id and i.provider='github' limit 1;
   select m.status into existing_status from playground_private.members m
   where m.class_id=p_class and m.user_id=student_id;
   if not found then
    insert into playground_private.members(class_id,user_id,display_name,status,teacher_assigned)
-   values(p_class,student_id,display_name,'approved',true);
+   values(p_class,student_id,v_display_name,'approved',true);
    state:='enrolled';
   elsif existing_status='removed' then
    state:='removed';
   else
    update playground_private.members
-   set status='approved',display_name=display_name,teacher_assigned=true
+   set status='approved',display_name=v_display_name,teacher_assigned=true
    where class_id=p_class and user_id=student_id;
    state:=case when existing_status='approved' then 'already_enrolled' else 'enrolled' end;
   end if;
   delete from playground_private.queued_assignments q
   where q.class_id=p_class and q.username_key=normalized;
-  results:=results||jsonb_build_array(jsonb_build_object('username',display_name,'status',state));
+  results:=results||jsonb_build_array(jsonb_build_object('username',v_display_name,'status',state));
  end loop;
  return results;
 end $$;
