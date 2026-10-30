@@ -166,6 +166,32 @@ are combined. These are browser-reported clues, not attendance or verified effor
 Guests send no class signals. No external analytics were added.
 
 
+### Manual class assignments (October 30, 2026)
+
+Apply `supabase/migrations/202610300005_manual_class_assignments.sql` in the existing
+Supabase SQL Editor **after** the classroom and auto-join migrations.
+This migration preserves current sections, membership, practice, and submissions.
+Deployment also requires rebuilding the central `mswhitby/playground` site and
+publishing the artifact to the existing `mswhitby/classroom/playground/` directory.
+The separate subject repositories need no changes.
+
+In `#/teacher`, select an existing section and expand **Manually assign students**.
+Paste GitHub usernames (up to 500 in one action, processed in batches of 100).
+Recognized usernames belonging to GitHub accounts already signed in to the
+Playground enroll immediately without student approval or a class code.
+Students not yet known to Supabase are queued; the assignment resolves automatically
+on their first verified GitHub sign-in, using the username in GitHub provider
+identity data. The teacher dashboard shows queued names and allows cancellation.
+This does not create GitHub accounts or fetch unknown account IDs from GitHub.
+
+Previously removed students are not restored by bulk assignment. Use the existing
+Restore control if intentional. Course access and all teacher reports remain scoped
+to the selected class and course. Class assignments share the same account across
+all subject playgrounds. No changes to assessment logic or local drafts are made.
+
+Database tests: `npm run test:database`. Browser tests: `npm test`.
+
+
 ### Visual system
 
 `public/visual.css` adds shared typography, surfaces, and light/dark colors while
