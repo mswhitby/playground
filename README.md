@@ -35,13 +35,18 @@ The site attempts to load the public Game Programming manifest from its canonica
 - C# drafts save locally. Run code compiles and executes the original C# in a terminable browser worker using .NET and Roslyn. Check answer compiles a separate entry point for the published test cases and preserves terminal output. Stop interrupts loading/execution; execution has a 30-second timeout and captured output has a 20,000-character limit. Fork/PR checks remain available as separate compiled practice checks.
 - Theme controls are inside Account & Preferences. Navigation uses a small sidebar caret.
 
-## Account architecture: next phase
+## Account architecture
 
-GitHub SSO and verified cross-device tracking are **not implemented**. Do not treat local records as official grades. The static site must not contain an OAuth client secret or GitHub token.
+GitHub sign-in, cross-device progress sync, and the teacher dashboard are implemented
+using Supabase PKCE, verified GitHub identities, and scoped database RPCs.
+The current setup is documented in **Student accounts**, **Class sections and
+teacher dashboard**, and **Manual class assignments** below.
 
-The next phase needs an OAuth app and a backend session service. Use GitHub’s stable numeric user ID as the external account identity, not a username. Store records by `(student_id, course_id, activity_id, content_version)` and keep attempts as separate records. Existing course/activity IDs are stable; adding a course must not create a second student identity. Namespaced device-local records are a temporary practice convenience. Import them only as unverified practice after explicit student choice, never as trusted assessment results.
-
-A single backend can then expose `/api/session`, `/api/progress`, and `/api/attempts` for all courses. Official C# assessments require trusted execution and server-side records. Authorization should let students read their own records and teachers access only their assigned groups. GitHub sign-in does not itself provide a progress database.
+Signed-in accounts use a single identity across all subject playgrounds.
+Client-side practice checks are useful evidence but are not independently verified
+grades. Explicit hand-ins are separately stored, timestamped snapshots.
+Unfinished drafts remain private. Never store GitHub OAuth secrets or bearer
+tokens in static browser assets.
 
 ## Curriculum alignment
 
@@ -145,10 +150,10 @@ from verified `auth.identities` GitHub provider IDs 63321092 (deoncarlette) and
 mswhitby teacher group. Private classroom tables have no browser table grants;
 intentional authenticated RPCs check teacher group or own membership on every call.
 
-Teachers open `#/teacher`, create a section for a course, share its join code, and
-approve recognizable student requests. Students open `#/classes`; the join form
-explains sharing before requesting consent. Pending or removed members expose no
-course work or activity to a teacher. Removing/leaving stops teacher access to that
+Teachers open `#/teacher` to create class sections and review enrolled students.
+Students may join with a code at `#/classes` and enroll immediately. Teachers can
+also enroll known GitHub accounts directly using Manual class assignments (below).
+Removed members expose no course work or activity to a teacher. Removing/leaving stops teacher access to that
 student's records in that section. Teachers can see practice summaries, check counts,
 and immutable submitted copies for their approved roster and the section course.
 Unfinished draft source remains private.
