@@ -197,6 +197,51 @@ all subject playgrounds. No changes to assessment logic or local drafts are made
 Database tests: `npm run test:database`. Browser tests: `npm test`.
 
 
+### Registered-account directory and private Sheet overlay (October 30, 2026)
+
+Apply `supabase/migrations/202610300006_registered_account_roster.sql` after
+the existing classroom and auto-join migrations. The registered-account
+directory displays **all GitHub accounts that have signed in to Playground**,
+including unassigned people; teacher accounts are excluded. Teachers may
+create course sections, add accounts individually or in bulk, move between
+sections of the same course, remove memberships, and mark private clients
+without deleting saved progress. Only verified GitHub usernames and internal
+identifiers are stored as student membership data.
+
+The optional Google Sheet overlay is **read-only, browser-only, and ephemeral**.
+A teacher pastes the Sheet URL in `#/teacher`. Google Identity Services obtains
+a short-lived browser token from the signed-in Google account. Google Sheets
+values are fetched **directly by that browser**, with only `Class Period`,
+`First Name`, `Last Name`, and `GitHub Username` columns requested.
+Whitespace in the original Google Form headers is normalized. The local
+directory matches case-insensitive GitHub usernames and shows name/period,
+unmatched usernames, and duplicate handles. None of the Google Sheet data,
+sheet URL, or Google OAuth access token goes into Supabase; backend roster
+writes pass only existing Supabase user UUIDs and section UUIDs. The Google
+token and sheet rows are held in memory until navigating away. The public
+Google OAuth web client ID (not secret) is the sole browser-saved setting.
+
+For a **private** spreadsheet, URL-only access is not possible. Enable the
+Google Sheets API in a Google Cloud project, configure the OAuth consent
+screen and its test users as required, and create a Web OAuth client with
+`https://www.mswhitby.com` as an authorized JavaScript origin. Enter that
+public OAuth client ID under the teacher dashboard's one-time Google
+authorization setup. Use the Google account that owns or has access to the
+Sheet when prompted. Do **not** publish the spreadsheet to the web or put
+Sheets API keys, service account secrets, or private Sheet URLs in this
+public repository. The requested `spreadsheets.readonly` OAuth scope is
+Google-classified as sensitive, and may require verification if used beyond
+the consent screen's permitted test accounts.
+
+Use the Sheet's **class period filter**, select visible registered students,
+choose the destination section, then **Add selected**. Existing membership
+and progress are preserved; moving between sections of the same course uses
+the per-person Move action. Sheet entries whose GitHub account has not
+registered cannot be enrolled until the student signs in to Playground.
+No subject curriculum repositories are modified.
+
+Run `npm test` and `npm run test:database` before publication.
+
 ### Visual system
 
 `public/visual.css` adds shared typography, surfaces, and light/dark colors while
