@@ -37,9 +37,7 @@ begin
    'user_id',u.id,
    'github_account',coalesce(nullif(i.identity_data->>'user_name',''),
       nullif(i.identity_data->>'preferred_username',''),'GitHub account'),
-   'display_name',coalesce(nullif(i.identity_data->>'full_name',''),
-      nullif(i.identity_data->>'name',''),
-      nullif(i.identity_data->>'user_name',''),
+   'display_name',coalesce(nullif(i.identity_data->>'user_name',''),
       nullif(i.identity_data->>'preferred_username',''),'GitHub account'),
    'kind',coalesce(k.kind,'student'),
    'memberships',coalesce((
