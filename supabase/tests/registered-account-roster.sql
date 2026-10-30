@@ -26,7 +26,7 @@ select public.playground_teacher_bulk_add(array[
  current_setting('test.manual_class')::uuid);
 select public.playground_teacher_manage_membership('00000000-0000-0000-0000-000000000004',
  'move',current_setting('test.manual_class')::uuid,current_setting('test.second_class')::uuid);
-do $ declare row jsonb;begin
+do $$ declare row jsonb;begin
  select m into row from jsonb_array_elements(public.playground_teacher_directory()) m
  where m->>'github_account'='LearnerB';
  if exists(select 1 from jsonb_array_elements(row->'memberships') x where x->>'class_id'=current_setting('test.second_class')) then
