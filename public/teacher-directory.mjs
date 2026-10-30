@@ -4,7 +4,7 @@ const labelFor=course=>({'computer-science-1':'Computer Science I','game-program
 
 export function mountTeacherDirectory(container,service,{classes=[],onChanged=async()=>{}}={}){
  let people=[],sections=classes,disposed=false,request=0,selected=new Set(),filter='all',query='';
- container.innerHTML=\`<div class="directory-heading"><h2>Registered accounts</h2><span id="directory-count" role="status"></span></div>
+ container.innerHTML=`<div class="directory-heading"><h2>Registered accounts</h2><span id="directory-count" role="status"></span></div>
  <p>Every GitHub account registered on this site appears here, including people who haven't joined a class. Mark private clients separately, then organize students into sections.</p>
  <div class="directory-controls">
   <label>Find an account<input id="directory-search" type="search" placeholder="Name, GitHub username, or section" autocomplete="off"></label>
@@ -12,7 +12,7 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   <button id="directory-refresh" class="secondary" type="button">Refresh accounts</button>
  </div>
  <div class="directory-bulk"><label><input id="directory-select-visible" type="checkbox"> Select visible students</label><label>Add selected to <select id="directory-bulk-class"></select></label><button id="directory-bulk-add" type="button">Add selected</button></div>
- <p id="directory-status" role="status"></p><div id="directory-list"><p>Loading accounts…</p></div>\`;
+ <p id="directory-status" role="status"></p><div id="directory-list"><p>Loading accounts…</p></div>`;
  const $=id=>container.querySelector('#'+id);
  const tell=message=>{$('directory-status').textContent=message};
  const active=p=>p.memberships.filter(m=>m.status==='approved'||m.status==='pending');
@@ -25,7 +25,7 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   return !search||[p.github_account,p.display_name,...memberships.map(m=>m.name),...memberships.map(m=>labelFor(m.course_id))].some(s=>String(s).toLocaleLowerCase().includes(search));
  });
  function classSelectOptions(value=''){
-  return '<option value="">Select section…</option>'+sections.map(c=>\`<option value="\${esc(c.id)}" \${c.id===value?'selected':''}>\${esc(c.name)} · \${esc(labelFor(c.course_id))}</option>\`).join('');
+  return '<option value="">Select section…</option>'+sections.map(c=>`<option value="${esc(c.id)}" ${c.id===value?'selected':''}>${esc(c.name)} · ${esc(labelFor(c.course_id))}</option>`).join('');
  }
  function refreshControls(){
   $('directory-bulk-class').innerHTML=classSelectOptions($('directory-bulk-class').value);
@@ -36,19 +36,19 @@ export function mountTeacherDirectory(container,service,{classes=[],onChanged=as
   const all=people,shown=visible();
   const enrolled=all.filter(p=>p.kind==='student'&&active(p).length).length;
   const clients=all.filter(p=>p.kind==='client').length;
-  $('directory-count').textContent=\`\${all.length} accounts · \${enrolled} enrolled · \${all.length-clients-enrolled} unassigned students · \${clients} private clients\`;
+  $('directory-count').textContent=`${all.length} accounts · ${enrolled} enrolled · ${all.length-clients-enrolled} unassigned students · ${clients} private clients`;
   const allVisibleStudents=shown.filter(p=>p.kind==='student');
   $('directory-select-visible').checked=allVisibleStudents.length>0&&allVisibleStudents.every(p=>selected.has(p.user_id));
   $('directory-select-visible').indeterminate=allVisibleStudents.some(p=>selected.has(p.user_id))&&!$('directory-select-visible').checked;
   $('directory-list').innerHTML=shown.length?shown.map(p=>{
    const memberships=active(p);
-   return \`<article class="directory-person" data-person="\${esc(p.user_id)}">
-     <div class="directory-person-id"><label class="directory-person-select"><input type="checkbox" data-check="\${esc(p.user_id)}" \${selected.has(p.user_id)?'checked':''} \${p.kind==='client'?'disabled':''} aria-label="Select \${esc(p.github_account)}">
-       <span><strong>\${esc(p.display_name)}</strong><small>@\${esc(p.github_account)}</small></span></label></div>
-     <div class="directory-kind"><label>Account type<select data-kind="\${esc(p.user_id)}"><option value="student" \${p.kind==='student'?'selected':''}>Student</option><option value="client" \${p.kind==='client'?'selected':''}>Private client</option></select></label></div>
-     <div class="directory-sections"><div class="directory-label">Class sections</div>\${memberships.length?memberships.map(m=>\`<div class="directory-section"><span>\${esc(m.name)} <small>· \${esc(labelFor(m.course_id))}\${m.status==='pending'?' · pending':''}</small></span><button class="secondary" data-move="\${esc(p.user_id)}" data-from="\${esc(m.class_id)}" type="button" \${p.kind==='client'?'disabled':''}>Move</button><button class="secondary" data-remove="\${esc(p.user_id)}" data-from="\${esc(m.class_id)}" type="button">Remove</button></div>\`).join(''):'<span class="directory-unassigned">No class assignment</span>'}</div>
-     <div class="directory-assign"><label>Destination section<select data-target="\${esc(p.user_id)}" \${p.kind==='client'?'disabled':''}>\${classSelectOptions()}</select></label><button type="button" data-add="\${esc(p.user_id)}" \${p.kind==='client'||!sections.length?'disabled':''}>Add</button></div>
-   </article>\`;
+   return `<article class="directory-person" data-person="${esc(p.user_id)}">
+     <div class="directory-person-id"><label class="directory-person-select"><input type="checkbox" data-check="${esc(p.user_id)}" ${selected.has(p.user_id)?'checked':''} ${p.kind==='client'?'disabled':''} aria-label="Select ${esc(p.github_account)}">
+       <span><strong>${esc(p.display_name)}</strong><small>@${esc(p.github_account)}</small></span></label></div>
+     <div class="directory-kind"><label>Account type<select data-kind="${esc(p.user_id)}"><option value="student" ${p.kind==='student'?'selected':''}>Student</option><option value="client" ${p.kind==='client'?'selected':''}>Private client</option></select></label></div>
+     <div class="directory-sections"><div class="directory-label">Class sections</div>${memberships.length?memberships.map(m=>`<div class="directory-section"><span>${esc(m.name)} <small>· ${esc(labelFor(m.course_id))}${m.status==='pending'?' · pending':''}</small></span><button class="secondary" data-move="${esc(p.user_id)}" data-from="${esc(m.class_id)}" type="button" ${p.kind==='client'?'disabled':''}>Move</button><button class="secondary" data-remove="${esc(p.user_id)}" data-from="${esc(m.class_id)}" type="button">Remove</button></div>`).join(''):'<span class="directory-unassigned">No class assignment</span>'}</div>
+     <div class="directory-assign"><label>Destination section<select data-target="${esc(p.user_id)}" ${p.kind==='client'?'disabled':''}>${classSelectOptions()}</select></label><button type="button" data-add="${esc(p.user_id)}" ${p.kind==='client'||!sections.length?'disabled':''}>Add</button></div>
+   </article>`;
   }).join(''):'<p>No accounts match this filter.</p>';
   refreshControls();
  }
