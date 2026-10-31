@@ -2,6 +2,20 @@
 
 One shared website, separate repositories for course content. The initial site is published at **https://www.mswhitby.com/playground/** using the existing `mswhitby/classroom` Pages deployment. This repo owns the source; files copied into `classroom/playground/` are built deployment artifacts, not a second implementation.
 
+## Frontend redesign and shared Python workspace
+
+The uploaded frontend is the interface reference: its compact header, course picker, collapsible outline, class cards, lesson tables and full-height editor layout are used directly. The previous site skin is no longer loaded in the shared shell. No mock student identities, due dates, grades or pattern-based code checker are included.
+
+Coding pages have one lesson header with Submit, a Practice/Learn switch above the task, a filename strip, one editor, Run/Check/Reset actions and output directly below. There are no nested Tests/Console tabs or repeated instructional panel headers. Practice retains the full published task, examples and hints. Learn uses the same task, original explanations, worked examples and hints as steps, and retains access to the complete original lesson. Both modes share the original draft, checker, activity identity and hand-in.
+
+Python now renders natively under `#/course/computer-science-1`, alongside the other subjects. `computer-science-1` remains its authoring repository: the shared build packages all 24 original Markdown lessons, 24 challenge contracts, starters, examples, skills guides, prerequisite map and unchanged Pyodide worker. Lesson, challenge and filter behavior is available inside the shared shell. Existing `cs1:guided:v1:` and `cs1:challenges:2026-10-26:` draft/progress keys and submission activity IDs are preserved, including earlier guest-draft migration.
+
+Width, editor height, terminal height and preview height retain pointer and keyboard gutters, persisted preferences and workspace expansion. Narrow screens stack the task and editor and use a menu button for the sidebar. The redesign uses installed system fonts only: no font files, embedded font data or external font requests are added.
+
+For local work, check out `computer-science-1`, `game-programming`, `mobile-app-dev` and `uil` alongside this repo. Run `npm ci && npm run build:ui`, then `python scripts/build.py` and `npm run preview`. Open `http://127.0.0.1:8088/playground/`. The browser checks use `npx playwright install chromium && npm run test:browser`; `CHROME_PATH` can select an installed browser. The preview server also serves legacy Python entry URLs for redirect checks.
+
+Publish the shared Playground artifact first, then the companion Python entry-page redirects. Old lesson and challenge bookmarks carry their activity hashes into the shared shell. Curriculum authoring stays in its subject repo. The existing classroom site and CNAME stay intact. A signed-in OAuth/teacher smoke check must happen on the deployment origin; localhost cannot reproduce the configured callback or user-specific class access.
+
 ## Course sources
 
 | Course | Source | Current status |
@@ -23,7 +37,7 @@ python scripts/build.py --game-source ../game-programming --mobile-source ../mob
 python -m http.server 8080 --directory dist
 ```
 
-The sibling `game-programming` checkout is needed for local build/tests. The build workflow checks it out automatically and uploads the `playground-site` artifact. Validate the artifact, then copy **its contents** into `mswhitby/classroom/playground/` to publish through the existing site. Retain the existing classroom CNAME and site; do not replace its root.
+The sibling subject checkouts, including `computer-science-1`, are needed for local build/tests. The build workflow checks it out automatically and uploads the `playground-site` artifact. Validate the artifact, then copy **its contents** into `mswhitby/classroom/playground/` to publish through the existing site. Retain the existing classroom CNAME and site; do not replace its root.
 
 The site attempts to load the public Game Programming manifest from its canonical repository, validates it, and falls back to the last bundled snapshot if that request is unavailable or invalid. Content edits can therefore appear without changing shared application code. A new build refreshes the fallback snapshot. Shared UI changes require republishing the artifact. Source commit metadata for the bundled snapshot is in `content-sources.json`.
 
@@ -65,8 +79,8 @@ The Debugging page accepts standalone C# console programs and uses the same loca
 
 The course now follows all six Unity Essentials missions in order, followed by the introductory Junior Programmer unit. Each mission links to its official Unity Learn companion.
 
-## Shared Material design
-All four course areas and the Python lesson/challenge pages load `material.css` and `theme.js` from the central Playground. The actual Material Style 3.1.1 stylesheet supplies the base components; the purple palette follows its theming reference. The shared CSS handles course layout, editors, and legacy Python surfaces. Appearance supports device setting, light, and dark; older preferences migrate and tabs synchronize. No additional runtime UI framework is required.
+## Shared interface
+All subjects use the central Playground interface, reference stylesheet and appearance settings. The shared shell loads the editor stylesheet directly and does not load the previous Material skin. Appearance supports light, dark and device settings; saved preferences migrate and tabs synchronize.
 
 Exercises use descriptive PascalCase C# methods and snake_case Python functions. Prompts, starters, and published examples agree. Older Solution/solution drafts are retained and accepted during migration; new starters use the new names.
 
