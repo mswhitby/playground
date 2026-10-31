@@ -2,7 +2,7 @@
 import argparse,hashlib,json,shutil,subprocess
 from pathlib import Path
 root=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');p.add_argument('--uil-source',type=Path,default=root.parent/'uil');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');p.add_argument('--python-source',type=Path,default=root.parent/'computer-science-1');p.add_argument('--uil-source',type=Path,default=root.parent/'uil');args=p.parse_args()
 source=args.game_source.resolve();course=json.loads((source/'course.json').read_text())
 subprocess.run(['node',str(root/'scripts/validate.mjs'),str(source/'course.json')],check=True)
 for unit in course['units']:
@@ -13,8 +13,13 @@ dist=root/'dist';shutil.rmtree(dist,ignore_errors=True);shutil.copytree(root/'pu
 target=dist/'data/game-programming';target.mkdir(parents=True);shutil.copy2(source/'course.json',target/'course.json');shutil.copytree(source/'lessons',target/'lessons')
 shutil.copytree(args.uil_source,dist/'data/uil',ignore=shutil.ignore_patterns('.git','node_modules'))
 shutil.copytree(args.mobile_source,dist/'data/mobile-app-dev',ignore=shutil.ignore_patterns('.git','node_modules','docs'))
+subprocess.run(['node',str(root/'scripts/package-python.mjs'),str(args.python_source),str(dist/'data/computer-science-1')],check=True)
 (dist/'.nojekyll').write_text('')
 commit=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],text=True,capture_output=True)
 dirty=subprocess.run(['git','-C',str(source),'diff','--quiet','HEAD','--','course.json']).returncode != 0
 (dist/'content-sources.json').write_text(json.dumps({'game-programming':{'repository':'mswhitby/game-programming','commit':commit.stdout.strip() if commit.returncode==0 and not dirty else None,'file':'course.json','sha256':hashlib.sha256((source/'course.json').read_bytes()).hexdigest()}},indent=2)+'\n')
+metadata=json.loads((dist/'content-sources.json').read_text())
+python_commit=subprocess.run(['git','-C',str(args.python_source),'rev-parse','HEAD'],text=True,capture_output=True)
+metadata['computer-science-1']={'repository':'mswhitby/computer-science-1','commit':python_commit.stdout.strip() if python_commit.returncode==0 else None,'file':'data/computer-science-1/course.json','sha256':hashlib.sha256((dist/'data/computer-science-1/course.json').read_bytes()).hexdigest()}
+(dist/'content-sources.json').write_text(json.dumps(metadata,indent=2)+'\n')
 print('Packaged shared Playground in',dist)
