@@ -6,7 +6,7 @@ export function setupStudyLayout(main,{course,title,competency,lessonNumber,less
  disposeStudyLayout();const controller=new AbortController(),signal=controller.signal;
  currentCleanup=()=>{controller.abort();document.body.classList.remove('workspace-expanded','workspace-resizing')};
  const layout=main.querySelector('.course-layout,.mobile-layout'),article=layout?.querySelector(':scope > article'),workspace=article?.querySelector('.workspace');if(!layout||!article||!workspace)return;
- main.classList.add('study-main');document.body.classList.add('study-page','ws');layout.classList.add('study-layout');article.classList.add('study-content','ws-main');if(!workspace)return;
+ main.querySelector(':scope > .breadcrumbs')?.remove();main.classList.add('study-main');document.body.classList.add('study-page','ws');layout.classList.add('study-layout');article.classList.add('study-content','ws-main');if(!workspace)return;
  const isMobile=course==='mobile-app-dev';let grid=article.querySelector('.lesson-grid'),copy=grid?.querySelector('.lesson-copy');
  if(isMobile){const prose=article.querySelector('#mobile-prose');prose.querySelector('h1')?.remove();const heading=document.createElement('header');heading.className='lesson-heading';const h1=document.createElement('h1');h1.textContent=title;heading.append(h1);article.insertBefore(heading,prose);grid=document.createElement('div');grid.className='lesson-grid';article.insertBefore(grid,prose);copy=document.createElement('section');copy.className='lesson-copy';grid.append(copy,workspace);copy.append(prose)}
  grid.classList.add('study-grid','ws-body');copy.classList.add('study-instructions','ws-lesson');copy.classList.remove('panel');workspace.classList.add('study-workspace');
