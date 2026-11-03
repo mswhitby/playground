@@ -21,3 +21,16 @@ test('a failed explicit submit retries the same id without background submission
 test('guest submissions and oversized payloads are rejected before writing',async()=>{
  const db=client({});await assert.rejects(new SubmissionService(db,null).submit(snapshot()),/Sign in/);const s=snapshot();s.files.code='x'.repeat(300000);await assert.rejects(new SubmissionService(db,'a').submit(s),/too large/);assert.equal(db.calls.length,0);
 });
+
+// Passing checks are not submission evidence, even when practice status is completed.
+import {submittedActivities,loadSubmissionHistory,submissionKey} from '../public/submission-history.mjs';
+test('only confirmed submission receipts produce completion indicators',()=>{
+ const checks=[{course_id:'uil',activity_id:'loops',status:'completed',passed:true}];
+ assert.equal(submittedActivities(checks).size,0);
+ assert.equal(submittedActivities([{...checks[0],id:'receipt',submitted_at:'2026-11-03T23:00:00Z'}]).has(submissionKey('uil','loops')),true);
+});
+test('submission history includes older hand-ins beyond the first page',async()=>{
+ const rows=Array.from({length:205},(_,i)=>({id:String(i)}));let calls=0;
+ const db={from(){const q={select(){return q},eq(){return q},order(){return q},async range(a,b){calls++;return {data:rows.slice(a,b+1)}}};return q}};
+ assert.equal((await loadSubmissionHistory(db,'student')).length,205);assert.equal(calls,2);assert.deepEqual(await loadSubmissionHistory(db,null),[]);
+});
