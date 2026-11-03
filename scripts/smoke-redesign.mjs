@@ -6,8 +6,9 @@ let browser;try{
  await context.route('https://raw.githubusercontent.com/**',r=>r.abort());
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  const game=JSON.parse(await readFile(resolve(root,'../game-programming/course.json'),'utf8'));
- await page.goto(base+'/playground/#/');await page.locator('.class-card').first().waitFor({timeout:20000});assert.equal(await page.locator('.class-card').count(),4);assert.equal(await page.locator('#topbar > .topbar-inner > a').count(),1);
+ await page.goto(base+'/playground/#/');await page.locator('.class-card').first().waitFor({timeout:20000});assert.equal(await page.locator('.class-card').count(),5);assert.equal(await page.locator('#topbar > .topbar-inner > a').count(),1);
  await page.getByRole('button',{name:'Jump to a page',exact:true}).click();await page.getByRole('searchbox',{name:'Search pages and lessons'}).fill(game.units[0].lessons[0].title);assert.ok(await page.locator('.jump-dialog a').count());await page.getByRole('button',{name:'Close',exact:true}).click();
+ await page.goto(base+'/playground/#/course/tsi-math');await page.getByRole('heading',{name:'Make the next step count.',exact:true}).waitFor();await page.getByRole('link',{name:'Start Day 1',exact:true}).click();await page.getByRole('heading',{name:'Percents in everyday decisions',exact:true}).waitFor();assert.equal(await page.locator('#class-login').count(),0);
  await page.goto(base+'/playground/#/course/game-programming/lesson/'+game.units[0].lessons[0].id);await page.getByRole('tab',{name:'Learn',exact:true}).waitFor();
  assert.equal(await page.locator('#main > .breadcrumbs').count(),0);assert.equal(await page.locator('.study-panel-heading').count(),0);assert.equal(await page.getByRole('tablist',{name:'Program results'}).count(),0);assert.equal(await page.locator('.lesson-heading .submission-actions').count(),1);assert.equal(await page.locator('.sidebar.collapsed').count(),1);
  const code=page.locator('#code');await code.evaluate(t=>{t.value+='\n// preserved draft';t.dispatchEvent(new Event('input',{bubbles:true}))});const draft=await code.inputValue();
