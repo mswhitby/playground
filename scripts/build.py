@@ -1,8 +1,9 @@
 """Package the shared shell and validated content from separate course repositories."""
 import argparse,hashlib,json,shutil,subprocess
 from pathlib import Path
+from package_tsi import package_tsi
 root=Path(__file__).resolve().parents[1]
-p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');p.add_argument('--uil-source',type=Path,default=root.parent/'uil');args=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('--game-source',type=Path,default=root.parent/'game-programming');p.add_argument('--mobile-source',type=Path,default=root.parent/'mobile-app-dev');p.add_argument('--uil-source',type=Path,default=root.parent/'uil');p.add_argument('--tsi-source',type=Path);args=p.parse_args()
 source=args.game_source.resolve();course=json.loads((source/'course.json').read_text())
 subprocess.run(['node',str(root/'scripts/validate.mjs'),str(source/'course.json')],check=True)
 for unit in course['units']:
@@ -13,8 +14,9 @@ dist=root/'dist';shutil.rmtree(dist,ignore_errors=True);shutil.copytree(root/'pu
 target=dist/'data/game-programming';target.mkdir(parents=True);shutil.copy2(source/'course.json',target/'course.json');shutil.copytree(source/'lessons',target/'lessons')
 shutil.copytree(args.uil_source,dist/'data/uil',ignore=shutil.ignore_patterns('.git','node_modules'))
 shutil.copytree(args.mobile_source,dist/'data/mobile-app-dev',ignore=shutil.ignore_patterns('.git','node_modules','docs'))
+tsi_source=package_tsi(dist,args.tsi_source)
 (dist/'.nojekyll').write_text('')
 commit=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],text=True,capture_output=True)
 dirty=subprocess.run(['git','-C',str(source),'diff','--quiet','HEAD','--','course.json']).returncode != 0
-(dist/'content-sources.json').write_text(json.dumps({'game-programming':{'repository':'mswhitby/game-programming','commit':commit.stdout.strip() if commit.returncode==0 and not dirty else None,'file':'course.json','sha256':hashlib.sha256((source/'course.json').read_bytes()).hexdigest()}},indent=2)+'\n')
+(dist/'content-sources.json').write_text(json.dumps({'tsi-math':tsi_source,'game-programming':{'repository':'mswhitby/game-programming','commit':commit.stdout.strip() if commit.returncode==0 and not dirty else None,'file':'course.json','sha256':hashlib.sha256((source/'course.json').read_bytes()).hexdigest()}},indent=2)+'\n')
 print('Packaged shared Playground in',dist)

@@ -1,5 +1,13 @@
 # Ms. Whitby’s Playground
 
+## TSI Math advisory demo
+
+The open course at `#/course/tsi-math` provides five 30-minute advisory sessions from `mswhitby/TSI`, browser practice feedback, preserved first-check results, a printable packet, and a facilitator preview. No GitHub or Google login is required. TSI demo records use a separate browser-only key and are never sent to the existing account or classroom services. No TSI roster, student signup, uploads, or schoolwide reporting is implemented.
+
+The canonical curriculum remains in `mswhitby/TSI`. `public/data/tsi-math` is a pinned fallback snapshot so existing builds do not require another checkout. To package a new curriculum revision, check out TSI beside this repo and run `python scripts/build.py --tsi-source ../TSI`; the build validates content/key IDs and session timing, and adds TSI provenance to `content-sources.json`. Refresh the tracked snapshot when updating the fallback. The reader uses one matching bundled content/key pair, avoiding mixed remote versions.
+
+TSI frontend source is `public/tsi.mjs`, `public/tsi-model.mjs`, and `public/tsi.css`. The facilitator page describes a proposed personal library and reviewed school bank; those are clearly marked as future work. Protected teacher uploads and roles must be implemented server-side before any real private materials are collected. Public demo answer keys are intentionally reviewable and are not secure assessment secrets.
+
 One shared website, separate repositories for course content. The initial site is published at **https://www.mswhitby.com/playground/** using the existing `mswhitby/classroom` Pages deployment. This repo owns the source; files copied into `classroom/playground/` are built deployment artifacts, not a second implementation.
 
 ## Course sources
