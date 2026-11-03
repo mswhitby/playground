@@ -1,3 +1,4 @@
+import {loadSubmissionHistory} from '../public/submission-history.mjs';
 import {ClassroomClient} from '../public/classroom-client.mjs';
 import {SubmissionService,mountSubmission} from '../public/submissions.mjs';
 import {createClient} from '@supabase/supabase-js';
@@ -77,11 +78,7 @@ function summaries(){
 export const Account={
  get classroom(){return classroom},get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
  signIn,signOut,summaries,
- async submissionHistory(){
-  if(!user)return [];
-  const {data,error}=await client.from('playground_submissions').select('id,course_id,activity_id,submitted_at').eq('user_id',user.id).order('submitted_at',{ascending:false}).limit(100);
-  if(error)throw error;return data;
- },
+ async submissionHistory(){return loadSubmissionHistory(client,user?.id)},
  mountSubmission(options){classroom?.setActivity(options.course_id,options.activity_id);return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:async snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');const receipt=await submissions.submit(snapshot);classroom?.signalSubmission();return receipt}})},
  recordAttempt(course,activity,kind,result){if(user&&sync)sync.attempt(course,activity,kind,result)},
  recordProject(id,step,results){const key='playground:mobile-project-check:'+id+':'+step;Account.storage.setItem(key,JSON.stringify({passed:results.every(r=>r.pass),passedCases:results.filter(r=>r.pass).length,totalCases:results.length,updatedAt:new Date().toISOString()}))},
