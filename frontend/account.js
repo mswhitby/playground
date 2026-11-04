@@ -75,11 +75,19 @@ function summaries(){
  if(user)return [...sync?.progress.values()||[]].map(row=>({course:row.course_id,activity:row.activity_id,kind:row.activity_kind,status:row.status,updatedAt:row.updated_at||''}));
  return [];
 }
+let currentActivity=null;
 export const Account={
+ get activity(){return currentActivity},
+ async flagForReview(note){
+  if(!user||!submissions||!currentActivity)throw Error("Sign in to flag an activity for your teacher.");
+  const {course_id,activity_id}=currentActivity;
+  if(!classroom?.context.memberships.some(m=>m.status==='approved'&&m.course_id===course_id))throw Error("Join a class for this course so your teacher can receive this flag.");
+  const receipt=await submissions.submit({course_id,activity_id:'review:'+activity_id,activity_kind:'self-report',files:{'review-request.json':JSON.stringify({activity_id,note:String(note).trim().slice(0,1000),url:location.href})}});return receipt;
+ },
  get classroom(){return classroom},get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
  signIn,signOut,summaries,
  async submissionHistory(){return loadSubmissionHistory(client,user?.id)},
- mountSubmission(options){classroom?.setActivity(options.course_id,options.activity_id);return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:async snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');const receipt=await submissions.submit(snapshot);classroom?.signalSubmission();return receipt}})},
+ mountSubmission(options){currentActivity={course_id:options.course_id,activity_id:options.activity_id};classroom?.setActivity(options.course_id,options.activity_id);return mountSubmission({...options,signedIn:()=>!!user,signIn,submit:async snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');const receipt=await submissions.submit(snapshot);classroom?.signalSubmission();return receipt}})},
  recordAttempt(course,activity,kind,result){if(user&&sync)sync.attempt(course,activity,kind,result)},
  recordProject(id,step,results){const key='playground:mobile-project-check:'+id+':'+step;Account.storage.setItem(key,JSON.stringify({passed:results.every(r=>r.pass),passedCases:results.filter(r=>r.pass).length,totalCases:results.length,updatedAt:new Date().toISOString()}))},
  async flush(){await sync?.flush()}
