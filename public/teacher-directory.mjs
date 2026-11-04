@@ -55,7 +55,7 @@ export function mountTeacherDirectory(container,service,{classes=[],sort='last',
    else if(!duplicateGithub.has(entry.github))sheetByGithub.set(entry.github,entry);
   }
   const refreshPeriodFilter=()=>{
-   const periods=availableRosterPeriods(sections,[...sheetById.values(),...sheetByGithub.values()],people);
+   const periods=availableRosterPeriods(sections,[...sheetById.values(),...sheetRows],people);
    $('sheet-period').innerHTML='<option value="all">All periods</option>'+periods.map(p=>`<option value="${esc(p)}">${esc(p)}</option>`).join('');
    sheetPeriod=periods.includes(sheetPeriod)?sheetPeriod:'all';
    $('sheet-period').value=sheetPeriod;
