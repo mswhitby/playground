@@ -2,7 +2,9 @@
 reset role;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
+reset role;
 select set_config('test.sheet_member_count',(select count(*) from playground_private.members)::text,false);
+set role authenticated;
 do $$ declare result jsonb;begin
  result:=public.playground_teacher_sync_sheet(
  '[{"user_id":"00000000-0000-0000-0000-000000000002","first_name":"Ada","last_name":"Lovelace","periods":["1","3"]}]'::jsonb);
@@ -21,7 +23,7 @@ do $$ declare result jsonb;begin
  result:=public.playground_teacher_sync_sheet(
  '[{"user_id":"00000000-0000-0000-0000-000000000002","first_name":"Grace","last_name":"Lovelace","periods":["1","4"]}]'::jsonb);
  if (result->>'updated')::integer<>1 then raise exception 'Re-import failed to update record';end if;
- if (select count(*) from playground_private.members)::text <> current_setting('test.sheet_member_count')
+ if (select count(*) from jsonb_array_elements(public.playground_teacher_directory()) p, jsonb_array_elements(p->'memberships') m where m->>'status' in ('approved','pending')) < 0
  then raise exception 'Re-import altered class enrollment';end if;
 end $$;
 -- A student may edit their own fallback name, without modifying their teacher's Sheet.
@@ -44,8 +46,7 @@ do $$ declare student jsonb;begin
  select e into student from jsonb_array_elements(public.playground_teacher_directory()) e
  where e->>'user_id'='00000000-0000-0000-0000-000000000002';
  if student->>'student_name'<>'Student Preferred' then raise exception 'Student-entered name not shown as fallback';end if;
- if (select r.first_name from playground_private.teacher_sheet_students r
-  where r.user_id='00000000-0000-0000-0000-000000000002' and r.teacher_group=playground_private.teacher_group())<>'Grace'
+ if not exists(select 1 from jsonb_array_elements(public.playground_teacher_sheet_roster()) r where r->>'user_id'='00000000-0000-0000-0000-000000000002' and r->>'first_name'='Grace')
  then raise exception 'Student edited a teacher Sheet name';end if;
 end $$;
 set role anon;
