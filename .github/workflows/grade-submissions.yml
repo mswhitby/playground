@@ -1,5 +1,8 @@
 name: Grade Playground hand-ins
 on:
+  push:
+    branches: [main]
+    paths: ['grading/**', '.github/workflows/grade-submissions.yml']
   workflow_dispatch:
   schedule:
     - cron: '*/5 * * * *'
