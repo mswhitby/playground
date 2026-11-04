@@ -276,3 +276,35 @@ No external font service or embedded-font CSS is used.
 ## Submitted grades
 
 Submit saves an immutable hand-in; an isolated server worker can grade that snapshot and store its result separately from browser checks. Challenges, Grades, and the submission result read the same protected grade record. Activation requires the database migration and server-side GitHub secret in [the grading setup](docs/grading-setup.md). Until activated, work is shown as not graded, with no fabricated score. Python challenges use the existing grader test set; lessons use their published cases. The other course runtimes and classroom behavior remain unchanged.
+
+### Teacher names, persistent dashboard selection, and student drill-down (November 4, 2026)
+
+Apply `supabase/migrations/202611040008_teacher_display_names.sql` in the
+Supabase SQL editor **after** the registered-account directory migration.
+The teacher directory will continue to load before this migration, but the
+new name-saving buttons remain disabled and warn that names will be temporary.
+
+`#/teacher` restores the last selected teacher tab and class section from
+local browser settings, scoped to the signed-in GitHub user. The Accounts
+tab continues to query registered accounts and saved class memberships
+from Supabase; it is not a browser-only list.
+
+In Accounts, a teacher can enter a real student name and select **Save name**.
+The optional private Google Sheet still only loads in the browser after
+Google authorization, and its matched names remain temporary unless the
+teacher explicitly selects **Save matched names for future visits**.
+This copies only matched name + verified registered account identifier into
+a teacher-group-scoped private Supabase table. Sheet rows, URLs, OAuth tokens,
+and class periods are not saved by this action. Clear a saved name by
+emptying its field and saving. Names saved this way appear in Accounts and
+Class Overview across refreshes and signed-in devices; the verified GitHub
+handle remains visible for identification.
+
+Class Overview now shows **Section roster & activity** for every approved
+member, even if they have no recent signal. **View details** opens one
+student's practice history, most recent browser activity, check count,
+and recent hand-in/review receipts. The existing snapshot limits receipts
+to the latest 200 per class, so these counts are explicitly not historical
+totals. Practice data are not server-verified grades, and private drafts
+are not exposed. Existing teacher-only scope and membership authorization
+continue to govern every RPC.
