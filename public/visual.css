@@ -664,3 +664,13 @@ body.pg-app #sidebar .class-menu { z-index:100;overflow-x:hidden }
 .grade-work-title { display:block;color:var(--text) }
 .grade-work-meta { display:block;font-size:12px;color:var(--muted);margin-top:4px }
 .score-full { color:var(--pass-fg) }
+
+.pg-app .study-instructions { container-type:inline-size;container-name:reading }
+@container reading (max-width:440px) {
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) { display:block;border-spacing:0 }
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) thead { display:none }
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) tbody { display:block }
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) tbody tr { display:grid;grid-template-columns:minmax(0,1fr);gap:8px;margin-bottom:16px }
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) td { display:block;padding:0 }
+ .pg-app .study-instructions table.examples:has(thead th:nth-child(2)) td::before { content:attr(data-label);display:block;color:var(--muted);font:12px/1.5 var(--font) }
+}
