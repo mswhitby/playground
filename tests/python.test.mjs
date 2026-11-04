@@ -28,3 +28,13 @@ function factory({delay=0,neverReady=false,neverRespond=false}={}){const workers
 test('Python runner executes the canonical worker protocol and can restart after Stop',async()=>{const f=factory(),r=new PythonRunner({workerFactory:()=>f.create()});assert.equal((await r.run('print(1)')).output,'real protocol');r.stop();assert.equal(f.workers[0].terminated,true);assert.equal((await r.run('print(2)')).success,true);r.dispose();await assert.rejects(r.run('print(3)'),/closed/)});
 test('Stop cancels an in-flight Python run without producing a result',async()=>{const f=factory({neverRespond:true}),r=new PythonRunner({workerFactory:()=>f.create()});await r.init();const pending=r.run('while True: pass');await Promise.resolve();r.stop();await assert.rejects(pending,/stopped/);assert.equal(f.workers[0].terminated,true);r.dispose()});
 test('Python load and execution timeouts terminate workers',async()=>{const f=factory({neverReady:true}),r=new PythonRunner({workerFactory:()=>f.create(),loadTimeout:5});await assert.rejects(r.run('print(1)'),/load in time/);assert.equal(f.workers[0].terminated,true);r.dispose();const g=factory({neverRespond:true}),s=new PythonRunner({workerFactory:()=>g.create(),runTimeout:5});await assert.rejects(s.run('while True: pass'),/timed out/);assert.equal(g.workers[0].terminated,true);s.dispose()});
+
+import {previewHarness,publicScore} from '../public/python-checks.mjs';
+test('Run previews returned values and printed output separately without requiring print',()=>{
+ const output=execFileSync('python3',['-c',previewHarness('def total(a,b):\n print("debug")\n return a+b','total(2,3)')],{encoding:'utf8'});
+ const sample=JSON.parse(output.split('PLAYGROUND_PREVIEW=')[1]);assert.equal(sample.returned,'5');assert.equal(sample.printed,'debug\n');assert.equal(sample.call,'total(2,3)');
+ const noPrint=execFileSync('python3',['-c',previewHarness('def solution(a,b): return {"sum":a+b}','total(2,3)')],{encoding:'utf8'});assert.equal(JSON.parse(noPrint.split('PLAYGROUND_PREVIEW=')[1]).returned,"{'sum': 5}");
+});
+test('public practice scores use passed case proportions and state their scope',()=>{
+ assert.deepEqual(publicScore(2,3,15),{passedCases:2,totalCases:3,points:10,possible:15,scope:'public_examples'});
+});

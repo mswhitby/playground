@@ -34,3 +34,4 @@ test('submission history includes older hand-ins beyond the first page',async()=
  const db={from(){const q={select(){return q},eq(){return q},order(){return q},async range(a,b){calls++;return {data:rows.slice(a,b+1)}}};return q}};
  assert.equal((await loadSubmissionHistory(db,'student')).length,205);assert.equal(calls,2);assert.deepEqual(await loadSubmissionHistory(db,null),[]);
 });
+test('teacher review flags never count as submitted coursework',()=>{assert.equal(submittedActivities([{id:'r',submitted_at:'2026-11-03',course_id:'uil',activity_id:'review:loops'}]).size,0)});
