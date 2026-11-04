@@ -53,7 +53,9 @@ jobs:
         run: python scripts/prepare-java-runtime.py
       - name: Build one shared website
         working-directory: playground
-        run: python scripts/build.py --game-source ../game-programming
+        run: |
+          python scripts/build.py --game-source ../game-programming
+          python scripts/verify-font-assets.py
       - name: Test redesigned workspaces in Chromium
         working-directory: playground
         run: |
