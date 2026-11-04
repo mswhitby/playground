@@ -272,3 +272,7 @@ the mockup are self-hosted under `public/fonts/inter/` with the original license
 After packaging, run `python scripts/verify-font-assets.py` to verify the exact
 font and license hashes and reject other font binaries. See `docs/fonts.md`.
 No external font service or embedded-font CSS is used.
+
+## Submitted grades
+
+Submit saves an immutable hand-in; an isolated server worker can grade that snapshot and store its result separately from browser checks. Challenges, Grades, and the submission result read the same protected grade record. Activation requires the database migration and server-side GitHub secret in [the grading setup](docs/grading-setup.md). Until activated, work is shown as not graded, with no fabricated score. Python challenges use the existing grader test set; lessons use their published cases. The other course runtimes and classroom behavior remain unchanged.

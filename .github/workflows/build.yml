@@ -51,6 +51,12 @@ jobs:
       - name: Prepare verified Java practice tools
         working-directory: playground
         run: python scripts/prepare-java-runtime.py
+      - name: Test isolated submission grading
+        working-directory: playground
+        run: |
+          python3 -m unittest discover -s grading -p 'test_*.py'
+          docker pull python:3.12-slim
+          python3 grading/smoke_isolation.py
       - name: Build one shared website
         working-directory: playground
         run: |
@@ -61,6 +67,15 @@ jobs:
         run: |
           npx playwright install --with-deps chromium
           npm run test:browser
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/python_problems_20261026
+          ref: 75f2d50ab64bd9552aeb2008f83ad5b456c63394
+          path: playground/challenge-grader
+          persist-credentials: false
+      - name: Verify existing challenge grading contracts
+        working-directory: playground
+        run: python3 grading/smoke_contracts.py
       - uses: actions/upload-artifact@v4
         with:
           name: playground-site
