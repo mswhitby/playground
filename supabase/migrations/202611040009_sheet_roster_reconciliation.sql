@@ -171,7 +171,7 @@ end $$;
 -- Students can supply or correct their own backup display name without a Sheet.
 -- This never changes teacher Sheet data or membership statuses.
 create function public.playground_update_my_display_name(p_name text)
-returns integer language plpgsql security definer set search_path='' as $
+returns integer language plpgsql security definer set search_path='' as $body$
 declare modified integer;
 begin
  if auth.uid() is null then raise exception 'Sign in required' using errcode='42501';end if;
@@ -183,7 +183,7 @@ begin
  where user_id=auth.uid() and status in ('approved','pending');
  get diagnostics modified=row_count;
  return modified;
-end $;
+end $body$;
 
 revoke all on function public.playground_teacher_sheet_roster(),
  public.playground_teacher_sync_sheet(jsonb),
