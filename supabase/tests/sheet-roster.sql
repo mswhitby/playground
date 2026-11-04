@@ -2,9 +2,7 @@
 reset role;
 set role authenticated;
 set request.jwt.claim.sub='00000000-0000-0000-0000-000000000001';
-reset role;
-select set_config('test.sheet_member_count',(select count(*) from playground_private.members)::text,false);
-set role authenticated;
+select set_config('test.sheet_member_count',(select coalesce(sum(jsonb_array_length(p->'memberships')),0) from jsonb_array_elements(public.playground_teacher_directory()) p)::text,false);
 do $$ declare result jsonb;begin
  result:=public.playground_teacher_sync_sheet(
  '[{"user_id":"00000000-0000-0000-0000-000000000002","first_name":"Ada","last_name":"Lovelace","periods":["1","3"]}]'::jsonb);
@@ -23,7 +21,7 @@ do $$ declare result jsonb;begin
  result:=public.playground_teacher_sync_sheet(
  '[{"user_id":"00000000-0000-0000-0000-000000000002","first_name":"Grace","last_name":"Lovelace","periods":["1","4"]}]'::jsonb);
  if (result->>'updated')::integer<>1 then raise exception 'Re-import failed to update record';end if;
- if (select count(*) from jsonb_array_elements(public.playground_teacher_directory()) p, jsonb_array_elements(p->'memberships') m where m->>'status' in ('approved','pending')) < 0
+ if (select coalesce(sum(jsonb_array_length(p->'memberships')),0) from jsonb_array_elements(public.playground_teacher_directory()) p)::text <> current_setting('test.sheet_member_count')
  then raise exception 'Re-import altered class enrollment';end if;
 end $$;
 -- A student may edit their own fallback name, without modifying their teacher's Sheet.
