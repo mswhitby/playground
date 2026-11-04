@@ -2,7 +2,7 @@ import {difficultyRank,recordedScore,latestSubmissions} from './grade-results.mj
 import {submittedActivities,submissionKey} from './submission-history.mjs?v=reading-1';
 import {renderCheckCards} from './check-cards.mjs?v=reading-1';
 import {taskSection} from './student-flow.mjs?v=grades-1';
-import {setupStudyLayout} from './study-layout.mjs?v=solve-1';
+import {setupStudyLayout} from './study-layout.mjs?v=grades-1';
 import {PythonRunner} from './python-runner.mjs?v=reading-1';
 import {harness,normalize,previewHarness,publicScore} from './python-checks.mjs?v=reading-1';
 const base='#/course/computer-science-1',data='data/computer-science-1/';
