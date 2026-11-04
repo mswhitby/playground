@@ -18,7 +18,7 @@ Coding pages have one lesson header with Submit, a Practice/Learn switch above t
 
 Python now renders natively under `#/course/computer-science-1`, alongside the other subjects. `computer-science-1` remains its authoring repository: the shared build packages all 24 original Markdown lessons, 24 challenge contracts, starters, examples, skills guides, prerequisite map and unchanged Pyodide worker. Lesson, challenge and filter behavior is available inside the shared shell. Existing `cs1:guided:v1:` and `cs1:challenges:2026-10-26:` draft/progress keys and submission activity IDs are preserved, including earlier guest-draft migration.
 
-Width, editor height, terminal height and preview height retain pointer and keyboard gutters, persisted preferences and workspace expansion. Narrow screens stack the task and editor and use a menu button for the sidebar. The redesign uses installed system fonts only: no font files, embedded font data or external font requests are added.
+Width, editor height, terminal height and preview height retain pointer and keyboard gutters, persisted preferences and workspace expansion. Narrow screens stack the task and editor and use a menu button for the sidebar. The interface uses the licensed Inter files supplied with the mockup; code keeps the system monospace stack. The original license is included, and no external font requests or embedded font data are used.
 
 For local work, check out `computer-science-1`, `game-programming`, `mobile-app-dev` and `uil` alongside this repo. Run `npm ci && npm run build:ui`, then `python scripts/build.py` and `npm run preview`. Open `http://127.0.0.1:8088/playground/`. The browser checks use `npx playwright install chromium && npm run test:browser`; `CHROME_PATH` can select an installed browser. The preview server also serves legacy Python entry URLs for redirect checks.
 
@@ -267,8 +267,8 @@ Run `npm test` and `npm run test:database` before publication.
 ### Visual system
 
 `public/visual.css` adds shared typography, surfaces, and light/dark colors while
-preserving the existing course layouts and actions. DM Sans, Fraunces, and Space
-Mono are self-hosted under `public/vendor/fonts/`; OFL licenses are checked in.
-Run `python scripts/prepare-fonts.py` before packaging to fetch the pinned font
-assets with SHA-256 verification. No Canva SDK, telemetry, external font request,
-or content from the reference's generated application is used.
+preserving the existing course layouts and actions. The four Inter weights from
+the mockup are self-hosted under `public/fonts/inter/` with the original license.
+After packaging, run `python scripts/verify-font-assets.py` to verify the exact
+font and license hashes and reject other font binaries. See `docs/fonts.md`.
+No external font service or embedded-font CSS is used.
