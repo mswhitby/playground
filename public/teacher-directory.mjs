@@ -29,7 +29,7 @@ export function mountTeacherDirectory(container,service,{classes=[],sort='last',
  const nameFor=(userId,github='',fallback='')=>{
   const p=people.find(person=>person.user_id===userId);
   const sheet=effectiveSheet(userId,github);
-  const candidate=[p?.student_name,fallback,savedNames.get(userId),p?.display_name].find(v=>v&&normalizeGithub(v)!==normalizeGithub(github));
+  const candidate=[p?.student_name,savedNames.get(userId),fallback,p?.display_name].find(v=>v&&normalizeGithub(v)!==normalizeGithub(github));
   return sheet?.name||candidate||github||'Student';
  };
  const fieldsFor=(id,github='',fallback='')=>{const sheet=effectiveSheet(id,github);return {name:nameFor(id,github,fallback),first:sheet?.firstName||sheet?.first_name||'',last:sheet?.lastName||sheet?.last_name||'',github}};
