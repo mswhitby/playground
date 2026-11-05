@@ -133,12 +133,22 @@ export async function teacherPage(main,account){
   if(disposed||location.hash!==pageHash||inflight)return;
   if(!selected){$('class-invitation').innerHTML='<h2>Start with your first section</h2><p>Create a section above to get its join code.</p>';$('teacher-data').replaceChildren();return}
   inflight=true;const classId=selected,request=++version;
-  try{const data=await service.rpc('playground_teacher_snapshot',{p_class:classId});if(disposed||location.hash!==pageHash||request!==version||selected!==classId)return;snapshot=data;render(data);$('teacher-updated').textContent='Updated '+new Date().toLocaleTimeString()}
+  try{
+   const checkWeekly=!weeklyData||weeklyClass!==classId||Date.now()-weeklyFetchedAt>60000;
+   const [data,weekly]=await Promise.all([
+    service.rpc('playground_teacher_snapshot',{p_class:classId}),
+    checkWeekly?service.rpc('playground_teacher_weekly_points',{p_class:classId})
+      .catch(()=>({weeks:[],method:'unavailable'})):Promise.resolve(weeklyData)
+   ]);
+   if(disposed||location.hash!==pageHash||request!==version||selected!==classId)return;
+   if(checkWeekly){weeklyData=weekly;weeklyClass=classId;weeklyFetchedAt=Date.now()}
+   snapshot=data;render(data);$('teacher-updated').textContent='Updated '+new Date().toLocaleTimeString();
+  }
   catch{if(!disposed&&location.hash===pageHash){if(snapshot)render({...snapshot,stale:true});$('teacher-updated').textContent='Could not refresh. Previous data may be out of date.'}}
   finally{inflight=false;if(!disposed&&selected!==classId)refresh()}
  }
- $('teacher-section').onchange=async()=>{selected=$('teacher-section').value;preferences.section=selected;savePreferences();selectedStudent='';snapshot=null;version++;$('submission-detail').hidden=true;$('teacher-data').textContent='Opening section…';$('class-invitation').replaceChildren();await refresh();await directory.reload()};
- $('teacher-refresh').onclick=async()=>{await refresh();await directory.reload()};
+ $('teacher-section').onchange=async()=>{selected=$('teacher-section').value;preferences.section=selected;savePreferences();selectedStudent='';snapshot=null;version++;weeklyData=null;weeklyClass='';weeklyFetchedAt=0;weekChoice=null;inlineReceipt=null;$('submission-detail').hidden=true;$('teacher-data').textContent='Opening section…';$('class-invitation').replaceChildren();await refresh();await directory.reload()};
+ $('teacher-refresh').onclick=async()=>{historyCache.clear();weeklyFetchedAt=0;await refresh();await directory.reload()};
  $('create-class').onsubmit=async e=>{e.preventDefault();const b=e.target.querySelector('button');b.disabled=true;try{const c=await service.rpc('playground_create_class',{p_name:$('section-name').value,p_course:$('section-course').value});if(disposed||location.hash!==pageHash)return;selected=c.id;$('section-name').value='';$('create-status').textContent='Section created.';await loadClasses()}catch{$('create-status').textContent='Could not create this section. Check the name and try again.'}finally{b.disabled=false}};
  try{await loadClasses()}catch{$('teacher-updated').textContent='Classes could not load. Refresh to try again.'}
  const visible=()=>{if(document.visibilityState==='visible'){if(snapshot)render({...snapshot,stale:true});refresh()}};document.addEventListener('visibilitychange',visible);
