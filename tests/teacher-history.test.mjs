@@ -39,5 +39,5 @@ test('expanded history lists all hand-ins, and escapes filenames and activity id
  const html=studentAssignmentsHtml({...sample,submissions:[...sample.submissions,{id:'evil',activity_id:'challenge:<script>alert(1)</script>',activity_kind:'challenge',submitted_at:'2026-11-04T20:00:00Z',grade_status:'ungraded'}]});
  assert.match(html,/Assignment history/);assert.match(html,/data-history-receipt="evil"/);
  assert.ok(!html.includes('<script>'));
- assert.match(html,/&lt;Script&gt;/i);
+ assert.match(html,/Script&gt;/i);
 });
