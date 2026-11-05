@@ -35,7 +35,7 @@ do $$ declare history jsonb; score jsonb;begin
  if not exists(select 1 from jsonb_array_elements(history->'practice') p
    where p->>'activity_id'='lesson:history-1' and p->>'status'='completed') then
   raise exception 'Completed practice missing from history';end if;
- if (select jsonb_array_length(public.playground_teacher_snapshot(current_setting('test.manual_class')::uuid)->'submissions'))>200 then
+ if (select jsonb_array_length(public.playground_teacher_snapshot(current_setting('test.manual_class')::uuid)->'submissions'))<>200 then
   raise exception 'Snapshot limit unexpectedly exceeded';end if;
  score:=public.playground_teacher_weekly_points(current_setting('test.manual_class')::uuid);
  if not exists(select 1 from jsonb_array_elements(score->'weeks') w
