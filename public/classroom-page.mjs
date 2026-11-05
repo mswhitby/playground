@@ -1,6 +1,8 @@
 import {COURSES,activityState} from './classroom-model.mjs?v=student-1';
 import {mountTeacherDirectory} from './teacher-directory.mjs?v=all-periods-1';
 import {sortRoster} from './roster-sort.mjs?v=dual-period-1';
+import {centralWeekStart} from './teacher-history.mjs?v=student-history-1';
+import {studentAssignmentsHtml,weeklyPointsHtml} from './teacher-student-panel.mjs?v=student-history-1';
 const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const options=()=>Object.entries(COURSES).map(([id,name])=>`<option value="${id}">${esc(name)}</option>`).join('');
 const courseHref=id=>'#/course/'+encodeURIComponent(id);
@@ -36,6 +38,8 @@ export async function teacherPage(main,account){
  const service=await serviceFor(main,account);if(!service||location.hash!==pageHash)return;
  if(!service.context.is_teacher){main.innerHTML='<h1>Teacher dashboard</h1><p>This GitHub account does not have teacher access.</p><a href="#/classes">Open my classes →</a>';return}
  let disposed=false,selected='',classes=[],snapshot=null,inflight=false,version=0,selectedStudent='';
+ const historyCache=new Map(),historyPending=new Map();
+ let weeklyData=null,weeklyClass='',weeklyFetchedAt=0,weekChoice=null,inlineReceipt=null;
  const preferenceKey='playground:teacher:dashboard:'+(account.user?.id||'teacher-preview');
  let preferences={};try{preferences=JSON.parse(localStorage.getItem(preferenceKey)||'{}')||{}}catch{}
  preferences.sort=['first','last','github'].includes(preferences.sort)?preferences.sort:'last';
@@ -53,38 +57,58 @@ export async function teacherPage(main,account){
  const directory=mountTeacherDirectory($('registered-directory'),service,{classes,sort:preferences.sort,onChanged:()=>refresh(),onNamesChanged:()=>{if(snapshot)render(snapshot)},onSortChange:value=>{preferences.sort=value;savePreferences();if(snapshot)render(snapshot)}});
  const displayName=m=>directory.nameFor(m.user_id,m.github_account,m.display_name);
  async function loadClasses(){classes=await service.rpc('playground_teacher_classes');if(disposed||location.hash!==pageHash)return;selected=classes.some(c=>c.id===selected)?selected:classes.some(c=>c.id===preferences.section)?preferences.section:classes[0]?.id||'';preferences.section=selected;savePreferences();$('teacher-section').innerHTML=classes.length?classes.map(c=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${esc(c.name)} · ${esc(COURSES[c.course_id])}</option>`).join(''):'<option>No sections yet</option>';$('new-class-panel').open=!classes.length;if(!classes.length)selectView(2);directory.setClasses(classes);await directory.reload();await refresh()}
- function showStudentDetails(data,approved,classified){
-  const panel=$('section-student-details');
-  if(!panel)return;
-  const student=approved.find(m=>m.user_id===selectedStudent);
-  if(!student){panel.hidden=true;return}
-  const current=classified.find(m=>m.user_id===selectedStudent);
-  const work=data.practice.filter(p=>p.user_id===selectedStudent).sort((a,b)=>Date.parse(b.updated_at||0)-Date.parse(a.updated_at||0));
-  const attempts=data.checks.find(r=>r.user_id===selectedStudent);
-  const submissions=data.submissions.filter(s=>s.user_id===selectedStudent);
-  const handins=submissions.filter(s=>!s.activity_id.startsWith('review:'));
-  const signal=current?.activity.signal;
-  const passed=work.filter(p=>p.status==='completed'&&p.activity_kind!=='self-report').length;
-  panel.hidden=false;
-  panel.innerHTML=`<div class="student-detail-heading"><div><h2>${esc(displayName(student))}</h2><p>@${esc(student.github_account||'GitHub account unavailable')} · ${esc(COURSES[classes.find(c=>c.id===selected)?.course_id]||'Section')}</p></div><button type="button" class="secondary" id="close-student-details">Close details</button></div>
-   <dl class="student-detail-facts">
-    <div><dt>Enrolled</dt><dd>${esc(time(student.joined_at))}</dd></div>
-    <div><dt>Current signal</dt><dd>${esc(current?.activity.label||'No recent signal')}</dd></div>
-    <div><dt>Current activity</dt><dd>${esc(activityName(signal?.activity_id))}</dd></div>
-    <div><dt>Last page signal</dt><dd>${esc(time(signal?.last_seen_at))}</dd></div>
-    <div><dt>Last interaction</dt><dd>${esc(time(signal?.last_interaction_at))}</dd></div>
-    <div><dt>Practice passed</dt><dd>${passed} of ${work.filter(p=>p.activity_kind!=='self-report').length} tracked activities</dd></div>
-    <div><dt>Checks</dt><dd>${Number(attempts?.checks)||0} · Last ${esc(time(attempts?.last_check))}</dd></div>
-    <div><dt>Recent hand-ins</dt><dd>${handins.length} in the latest section snapshot</dd></div>
-   </dl>
-   <h3>Practice history</h3><p class="fine">Practice checks are browser-reported, not verified grades. Self-reported Unity work is marked separately.</p>
-   ${work.length?`<div class="teacher-table-wrap"><table class="teacher-table"><thead><tr><th>Activity</th><th>Kind</th><th>Result</th><th>Updated</th></tr></thead><tbody>${work.map(p=>`<tr><td>${esc(activityName(p.activity_id))}</td><td>${esc(p.activity_kind)}</td><td>${esc(p.activity_kind==='self-report'?'Self-reported: '+p.status:p.status)}</td><td>${esc(time(p.updated_at))}</td></tr>`).join('')}</tbody></table></div>`:'<p>No practice history recorded for this section course.</p>'}
-   <h3>Recent hand-ins and review flags</h3><p class="fine">The section snapshot includes at most the latest 200 hand-ins and flags, not a lifetime total. Opening a receipt shows the saved submission, not a live draft.</p>
-   ${submissions.length?submissions.map(item=>`<div class="progress-row"><span>${esc(activityName(item.activity_id))}<small>${esc(time(item.submitted_at))}</small></span><button type="button" class="secondary" data-student-receipt="${esc(item.id)}">${item.activity_id.startsWith('review:')?'Open flag':'Open hand-in'}</button></div>`).join(''):'<p>No recent hand-ins or review flags.</p>'}`;
-  panel.querySelector('#close-student-details').onclick=()=>{selectedStudent='';panel.hidden=true};
-  panel.querySelectorAll('[data-student-receipt]').forEach(button=>button.onclick=()=>{
-   $('teacher-data').querySelector('[data-receipt="'+button.dataset.studentReceipt+'"]')?.click();
+ function showInlineReceipt(receiptId){
+  const slot=$('expanded-student-card')?.querySelector('.student-inline-receipt');
+  if(!slot)return;
+  const currentClass=selected,currentStudent=selectedStudent;
+  inlineReceipt={id:receiptId,student:currentStudent,section:currentClass,html:'Opening saved hand-in…'};
+  slot.hidden=false;slot.textContent=inlineReceipt.html;
+  service.rpc('playground_teacher_submission',{p_class:currentClass,p_submission:receiptId}).then(row=>{
+   if(disposed||selected!==currentClass||selectedStudent!==currentStudent)return;
+   const content=Object.entries(row.files||{}).map(([filename,code])=>`<h5>${esc(filename)}</h5><pre><code>${esc(code)}</code></pre>`).join('');
+   inlineReceipt.html=`<div class="student-detail-heading"><h4>Submitted copy · ${esc(activityName(row.activity_id))}</h4><button type="button" class="secondary" data-close-inline-receipt>Close</button></div><p>Submitted ${esc(time(row.submitted_at))}</p>${content}`;
+   const target=$('expanded-student-card')?.querySelector('.student-inline-receipt');
+   if(target){target.hidden=false;target.innerHTML=inlineReceipt.html;target.querySelector('[data-close-inline-receipt]')?.addEventListener('click',()=>{inlineReceipt=null;target.hidden=true})}
+  }).catch(()=>{
+   if(inlineReceipt?.id===receiptId){
+    inlineReceipt.html='<p>Could not open this submitted copy.</p>';
+    const target=$('expanded-student-card')?.querySelector('.student-inline-receipt');
+    if(target){target.hidden=false;target.innerHTML=inlineReceipt.html}
+   }
   });
+ }
+ function showStudentDetails(data,approved){
+  const panel=$('expanded-student-card');
+  if(!panel||!selectedStudent)return;
+  const student=approved.find(m=>m.user_id===selectedStudent);
+  if(!student)return;
+  const key=selected+'|'+selectedStudent,existing=historyCache.get(key);
+  const chosen=weekChoice||centralWeekStart(data.server_time||new Date());
+  const earned=(weeklyData?.weeks||[]).find(r=>r.user_id===selectedStudent&&r.week_start===chosen);
+  if(existing?.error){panel.textContent=existing.error;return}
+  if(existing?.data){
+   panel.innerHTML=studentAssignmentsHtml(existing.data,{points:Number(earned?.points)||0,week:chosen});
+   panel.querySelectorAll('[data-history-receipt]').forEach(btn=>btn.onclick=()=>showInlineReceipt(btn.dataset.historyReceipt));
+   if(inlineReceipt?.student===selectedStudent&&inlineReceipt.section===selected){
+    const receipt=panel.querySelector('.student-inline-receipt');
+    receipt.hidden=false;receipt.innerHTML=inlineReceipt.html;
+    receipt.querySelector('[data-close-inline-receipt]')?.addEventListener('click',()=>{
+     inlineReceipt=null;receipt.hidden=true
+    });
+   }
+   return;
+  }
+  panel.innerHTML='<p role="status">Loading complete assignment history…</p>';
+  if(historyPending.has(key))return;
+  const promise=service.rpc('playground_teacher_student_history',{p_class:selected,p_student:selectedStudent});
+  historyPending.set(key,promise);
+  promise.then(history=>{
+   historyCache.set(key,{data:history,loadedAt:Date.now()});
+   if(!disposed&&selected+'|'+selectedStudent===key&&snapshot)showStudentDetails(snapshot,snapshot.roster.filter(m=>m.status==='approved'));
+  }).catch(error=>{
+   historyCache.set(key,{error:'Assignment history could not load: '+(error?.message||'Please refresh.')});
+   if(!disposed&&selected+'|'+selectedStudent===key&&snapshot)showStudentDetails(snapshot,snapshot.roster.filter(m=>m.status==='approved'));
+  }).finally(()=>historyPending.delete(key));
  }
  function render(data){
   const c=classes.find(c=>c.id===selected);if(!c)return;
