@@ -308,3 +308,30 @@ to the latest 200 per class, so these counts are explicitly not historical
 totals. Practice data are not server-verified grades, and private drafts
 are not exposed. Existing teacher-only scope and membership authorization
 continue to govern every RPC.
+
+### Inline assignment history and verified weekly points (November 5, 2026)
+
+Apply `supabase/migrations/202611050010_teacher_student_history_weekly_points.sql`
+after the existing grades migration. The teacher roster expands directly beneath the
+student name; selecting the name again closes the details. The new teacher-scoped
+`playground_teacher_student_history` function returns all practice statuses,
+per-activity check counts, and all hand-ins with available grade summaries for
+the **selected section's course**, without a 200-submission limit. Source files
+and private drafts are not included in the history response; an explicit
+**Open copy** click uses the existing teacher-only submission RPC.
+
+The weekly table uses `playground_teacher_weekly_points` and is grouped
+Monday–Sunday in **America/Chicago**. Points are credited in the week of the
+submission; repeated hand-ins earn only the **positive improvement** over the
+student's previous best verified score for that assignment. Once a student
+has earned 10 points on an assignment, a second 10-point hand-in adds zero.
+If the first graded hand-in receives 7 points and a later hand-in receives 10,
+the later week receives 3 additional points. Teacher- and server-graded
+records count; queued, ungraded, and browser practice completions do not.
+This is a verified-points ledger, **not a gradebook percentage or a claim that
+ungraded classes have no work**. Student histories still list ungraded
+submissions and practice completions.
+
+Run `npm test`, `npm run test:database` and `npm run test:browser`
+before merging. The inline details and current/week selector persist during
+dashboard refreshes; select **Refresh now** to reload a student's history.
