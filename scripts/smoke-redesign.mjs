@@ -86,7 +86,7 @@ let browser;try{
  if(process.env.PREVIEW_DIR){await mkdir(process.env.PREVIEW_DIR,{recursive:true});await page.goto(base+'/playground/#/');await page.locator('.class-card').first().waitFor();await page.screenshot({path:resolve(process.env.PREVIEW_DIR,'playground-home.png'),fullPage:true});await page.goto(base+'/playground/#/course/computer-science-1/lesson/'+encodeURIComponent(lesson));await page.getByRole('tab',{name:'Solve',exact:true}).waitFor();await page.screenshot({path:resolve(process.env.PREVIEW_DIR,'playground-editor.png')})}
  // Six-step fictional March bracket: a complete example must pass the actual browser checkpoints.
  await page.goto(base+'/playground/#/course/mobile-app-dev/project/bracket-challenge/test');
- await page.locator('#project-code').waitFor();
+ await page.locator('#project-code').waitFor({state:'attached'});
  await page.locator('#project-code').evaluate(async field=>{
   const result=await fetch('data/mobile-app-dev/projects/bracket-challenge/example.html');
   if(!result.ok)throw Error('Bracket example missing from packaged course');
