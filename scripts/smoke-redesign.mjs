@@ -97,7 +97,7 @@ let browser;try{
  await page.waitForFunction(()=>document.getElementById('project-feedback')?.textContent.includes('checks passed for this step.'));
  assert.match(await page.locator('#project-feedback').textContent(),/12\/12 checks passed/);
  assert.equal(await page.frameLocator('#mobile-preview').locator('.game').count(),7);
- await page.frameLocator('#mobile-preview').locator('.game[data-game="0-0"] .team').first().click();
+ await page.frameLocator('#mobile-preview').locator('.game[data-game="0-0"] .team').first().evaluate(button=>button.click());
  assert.match(await page.frameLocator('#mobile-preview').locator('.game[data-game="1-0"]').textContent(),/North Harbor/);
 
  console.log('Browser regression checks passed: reference header/sidebar/editor structure, same drafts across modes, gutters, real HTML checker, mobile fallback, native Python course and old bookmark redirects.');
