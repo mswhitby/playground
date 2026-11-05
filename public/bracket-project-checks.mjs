@@ -11,6 +11,9 @@ export function bracketProjectCheckSource(step){
  const includes=id=>target==='test'||target===id;
  const elements=selector=>[...document.querySelectorAll(selector)];
  const status=document.getElementById('entry-status');
+ const previousStatus=status?.textContent;
+ const leaderboard=document.getElementById('leaderboard');
+ const previousLeaderboard=leaderboard?.innerHTML;
  const oldPicks=app?.picks?{...app.picks}:null;
  const entryRef=typeof app?.getEntries==='function'?app.getEntries():null;
  const oldEntries=Array.isArray(entryRef)?entryRef.map(entry=>({...entry,picks:{...entry.picks}})):null;
@@ -23,8 +26,8 @@ export function bracketProjectCheckSource(step){
    record('Four first-round matchups use all eight teams exactly once.',
     Array.isArray(open)&&open.length===4&&open.every(g=>Array.isArray(g)&&g.length===2)
      &&allIds.length===8&&new Set(allIds).size===8&&allIds.every(id=>ids.includes(id)));
-   record('Three rounds are identified in the tournament data.',
-    Array.isArray(teams)&&typeof app.getMatchup==='function'&&Array.isArray(app.getMatchup(0,0))&&app.getMatchup(0,0).length===2);
+   record('Three named rounds are defined in the tournament data.',
+    typeof ROUND_NAMES!=='undefined'&&Array.isArray(ROUND_NAMES)&&ROUND_NAMES.length===3&&ROUND_NAMES.every(Boolean));
   }
   if(includes('layout')){
    const board=document.querySelector('#bracket');
@@ -96,9 +99,9 @@ export function bracketProjectCheckSource(step){
   }
   if(oldEntries&&Array.isArray(entryRef)){
    entryRef.splice(0,entryRef.length,...oldEntries);
-   try{app.renderLeaderboard?.()}catch{}
   }
-  if(status)status.textContent='';
+  if(leaderboard&&previousLeaderboard!==undefined)leaderboard.innerHTML=previousLeaderboard;
+  if(status)status.textContent=previousStatus||'';
  }
  send('project-checks',{results});
 })().catch(error=>send('error',{text:error.name+': '+error.message}));`;
