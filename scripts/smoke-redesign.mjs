@@ -84,5 +84,21 @@ let browser;try{
  await page.getByRole('tab',{name:'Section setup',exact:true}).click();assert.ok(await page.locator('#new-class-panel').isVisible());await page.evaluate(()=>window.teacherFixture.dispose());
  assert.deepEqual(errors,[]);
  if(process.env.PREVIEW_DIR){await mkdir(process.env.PREVIEW_DIR,{recursive:true});await page.goto(base+'/playground/#/');await page.locator('.class-card').first().waitFor();await page.screenshot({path:resolve(process.env.PREVIEW_DIR,'playground-home.png'),fullPage:true});await page.goto(base+'/playground/#/course/computer-science-1/lesson/'+encodeURIComponent(lesson));await page.getByRole('tab',{name:'Solve',exact:true}).waitFor();await page.screenshot({path:resolve(process.env.PREVIEW_DIR,'playground-editor.png')})}
+ // Six-step fictional March bracket: a complete example must pass the actual browser checkpoints.
+ await page.goto(base+'/playground/#/course/mobile-app-dev/project/bracket-challenge/test');
+ await page.locator('#project-code').waitFor({state:'attached'});
+ await page.locator('#project-code').evaluate(async field=>{
+  const result=await fetch('data/mobile-app-dev/projects/bracket-challenge/example.html');
+  if(!result.ok)throw Error('Bracket example missing from packaged course');
+  field.value=await result.text();
+  field.dispatchEvent(new Event('input',{bubbles:true}));
+ });
+ await page.locator('#project-check').click();
+ await page.waitForFunction(()=>document.getElementById('project-feedback')?.textContent.includes('checks passed for this step.'));
+ assert.match(await page.locator('#project-feedback').textContent(),/12\/12 checks passed/);
+ assert.equal(await page.frameLocator('#mobile-preview').locator('.game').count(),7);
+ await page.frameLocator('#mobile-preview').locator('.game[data-game="0-0"] .team').first().evaluate(button=>button.click());
+ assert.match(await page.frameLocator('#mobile-preview').locator('.game[data-game="1-0"]').textContent(),/North Harbor/);
+
  console.log('Browser regression checks passed: reference header/sidebar/editor structure, same drafts across modes, gutters, real HTML checker, mobile fallback, native Python course and old bookmark redirects.');
 }finally{await browser?.close();await new Promise(r=>server.close(r))}
