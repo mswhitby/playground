@@ -72,5 +72,5 @@ jobs:
           GRADER_SHARED_DIR: challenge-bank
           GRADER_CURRICULUM: grading-data/course.json
           GRADER_CASES_DIR: challenge-grader/grader
-          GRADER_VERSION: ${{ github.sha }}:75f2d50ab64bd9552aeb2008f83ad5b456c63394
+          GRADER_VERSION: ${{ github.sha }}:75f2d50ab64bd9552aeb2008f83ad5b456c63394:69ce52fc851a91545075724c9b0290db7bf6fef6
         run: python3 grading/worker.py
