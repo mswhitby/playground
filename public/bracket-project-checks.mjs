@@ -1,7 +1,7 @@
 // Browser-only practice checks for the fictional eight-team bracket mini-project.
 // These checks are advisory. No client-side result is a trusted server grade.
 export function bracketProjectCheckSource(step){
- const allowed=['teams','layout','picks','scoring','leaderboard','test'];
+ const allowed=['scaffold','page','style','matchups','teams','layout','picks','scoring','leaderboard','test'];
  if(!allowed.includes(step))throw Error('Unknown bracket project step.');
  return `(async()=>{
  const results=[];
@@ -18,6 +18,14 @@ export function bracketProjectCheckSource(step){
  const entryRef=typeof app?.getEntries==='function'?app.getEntries():null;
  const oldEntries=Array.isArray(entryRef)?entryRef.map(entry=>({...entry,picks:{...entry.picks}})):null;
  try {
+  if(target==='scaffold')record('The document has a language, title, and mobile viewport.',document.documentElement.lang==='en'&&document.title==='Bracket Challenge'&&document.querySelector('meta[name="viewport"]'));
+  if(target==='page')record('The page has a title, bracket area, and labeled nickname form.',document.querySelector('main h1')&&document.getElementById('bracket')&&document.querySelector('label[for="entry-name"]')&&document.querySelector('#entry-form input#entry-name'));
+  if(target==='style'){
+   const board=document.getElementById('bracket');
+   record('The bracket uses a responsive grid.',board&&getComputedStyle(board).display==='grid');
+   record('The page fits this viewport.',document.documentElement.scrollWidth<=innerWidth+1);
+  }
+  if(target==='matchups')record('The first game finds two teams; later rounds wait for winners.',app?.getMatchup?.(0,0)?.[0]?.id==='north'&&app?.getMatchup?.(0,0)?.[1]?.id==='pine'&&app?.getMatchup?.(1,0)?.every(t=>t===null));
   if(includes('teams')){
    const teams=app?.teams,open=app?.openingMatchups;
    const ids=Array.isArray(teams)?teams.map(t=>t.id):[];
