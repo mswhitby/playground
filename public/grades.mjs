@@ -1,5 +1,5 @@
 import {bestGradedSubmissions,recordedScore,gradeLabel} from './grade-results.mjs?v=archive-1';
-import {courseUnits} from './course-navigation.mjs?v=reading-1';
+import {courseUnits} from './course-navigation.mjs?v=python-curriculum-20261106';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export async function gradesPage(main,catalog,courseId){
  const route=location.hash,Account=window.PlaygroundAccount,course=catalog.find(c=>c.id===courseId);
