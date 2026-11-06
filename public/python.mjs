@@ -11,7 +11,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 export const pythonHref=(kind,id)=>base+'/'+kind+'/'+encodeURIComponent(id);
 export const pythonStorage=(kind,id)=>({activity:(kind==='challenge'?'challenge:':'lesson:')+id,prefix:kind==='challenge'?'cs1:challenges:2026-10-26:':'cs1:guided:v1:'});
 let snapshot;
-async function getCourse(){if(!snapshot){const r=await fetch(data+'course.json');if(!r.ok)throw Error('Python curriculum unavailable');snapshot=await r.json()}return snapshot}
+async function getCourse(){if(!snapshot){const r=await fetch(data+'course.json?v=python-curriculum-20261106');if(!r.ok)throw Error('Python curriculum unavailable');snapshot=await r.json()}return snapshot}
 const store=()=>window.PlaygroundAccount.storage;
 function read(key,fallback=null){try{return store().getItem(key)??fallback}catch{return fallback}}
 function save(key,value){try{store().setItem(key,value);return true}catch{return false}}
