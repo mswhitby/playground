@@ -26,6 +26,8 @@ Publish the shared Playground artifact first, then the companion Python entry-pa
 
 ## Course sources
 
+**Curriculum developers:** Read [Curriculum repository authoring and publication rules](docs/CURRICULUM-REPOSITORIES.md) before changing lesson Markdown, manifest IDs, starter code, challenges or TSI answer material. Course repositories are the canonical content sources; this app packages approved student-facing content.
+
 | Course | Source | Current status |
 |---|---|---|
 | Computer Science I | `mswhitby/computer-science-1` | 40 Markdown lessons, Python exercises and 24 challenges; archived lessons retain identities and grades |
