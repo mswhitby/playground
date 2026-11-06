@@ -5,7 +5,7 @@ def package_tsi(dist,source=None):
  target=Path(dist)/'data/tsi-math'
  if source:
   source=Path(source).resolve()
-  files=['course.json','content/week-01-student.json','teachers/week-01/answers.json','resources/pearson-selections.json','print/week-01-student-packet.html']+[f'teachers/week-01/day-{n:02}.md' for n in range(1,6)]+['teachers/week-01/overview.md','teachers/week-01/answer-key.md']
+  files=['content/diagnostic-v1.json','course.json','content/week-01-student.json','teachers/week-01/answers.json','resources/pearson-selections.json','print/week-01-student-packet.html']+[f'teachers/week-01/day-{n:02}.md' for n in range(1,6)]+['teachers/week-01/overview.md','teachers/week-01/answer-key.md']
   for f in files:
    dest=target/f;dest.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(source/f,dest)
   sha=subprocess.run(['git','-C',str(source),'rev-parse','HEAD'],text=True,capture_output=True)

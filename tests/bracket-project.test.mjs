@@ -5,7 +5,7 @@ import {bracketProjectCheckSource} from '../public/bracket-project-checks.mjs';
 import {buildProjectPreview,projectCheckSource} from '../public/project-preview.mjs';
 
 test('bracket steps have injectable browser-only behavioral checks',()=>{
- for(const step of ['teams','layout','picks','scoring','leaderboard','test']){
+ for(const step of ['scaffold','page','style','teams','matchups','layout','picks','scoring','leaderboard','test']){
   const code=bracketProjectCheckSource(step);
   assert.match(code,/bracketApp/);
   assert.match(code,/project-checks/);
