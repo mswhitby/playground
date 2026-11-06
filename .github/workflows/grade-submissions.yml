@@ -20,9 +20,11 @@ jobs:
         id: config
         env:
           KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CHALLENGE_TOKEN: ${{ secrets.CHALLENGES_READ_TOKEN }}
         run: |
           if [ -n "$KEY" ]; then
             echo 'ready=true' >> "$GITHUB_OUTPUT"
+            if [ -n "$CHALLENGE_TOKEN" ]; then echo 'shared_ready=true' >> "$GITHUB_OUTPUT"; fi
           else
             echo 'Grading is not activated. Complete docs/grading-setup.md.' >> "$GITHUB_STEP_SUMMARY"
           fi
@@ -44,6 +46,15 @@ jobs:
           ref: 75f2d50ab64bd9552aeb2008f83ad5b456c63394
           path: challenge-grader
           persist-credentials: false
+      - name: Checkout private shared challenge grading cases
+        uses: actions/checkout@v4
+        if: steps.config.outputs.ready == 'true' && steps.config.outputs.shared_ready == 'true'
+        with:
+          repository: mswhitby/challenges
+          ref: 69ce52fc851a91545075724c9b0290db7bf6fef6
+          path: challenge-bank
+          token: ${{ secrets.CHALLENGES_READ_TOKEN }}
+          persist-credentials: false
       - uses: actions/setup-node@v4
         if: steps.config.outputs.ready == 'true'
         with:
@@ -58,6 +69,7 @@ jobs:
         env:
           SUPABASE_URL: https://lndzhmwvooqfrqcafhut.supabase.co
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GRADER_SHARED_DIR: challenge-bank
           GRADER_CURRICULUM: grading-data/course.json
           GRADER_CASES_DIR: challenge-grader/grader
           GRADER_VERSION: ${{ github.sha }}:75f2d50ab64bd9552aeb2008f83ad5b456c63394
