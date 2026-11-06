@@ -19,3 +19,13 @@ test('unit links retain authored IDs and lesson numbering within each unit',()=>
  assert.equal(groups[1].lessons[0].number,1);assert.equal(groups[1].lessons[0].url,'#/course/computer-science-1/lesson/two%2Fb');assert.equal(groups[1].id,'2');
  const weeks=courseUnits('tsi-math',{weeks:[{id:'w1',title:'Week',sessions:[{id:'d1',title:'Day'}]}]});assert.equal(weeks[0].label,'Week');assert.equal(weeks[0].lessons.length,1);
 });
+
+test('archived Computer Science I lessons disappear from units while historical IDs remain in manifest',()=>{
+ const old={id:'01-old/a',unit:1,unitName:'Intro',title:'Old',status:'archived'};
+ const live={id:'07-new/b',unit:7,unitName:'Strings',title:'New'};
+ const manifest={lessons:[old,live]};
+ const units=courseUnits('computer-science-1',manifest);
+ assert.deepEqual(units.map(u=>u.id),['7']);
+ assert.equal(manifest.lessons.length,2);
+ assert.equal(manifest.lessons[0].id,'01-old/a');
+});
