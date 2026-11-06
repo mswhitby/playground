@@ -1,3 +1,4 @@
+import {findPrompt,attachPrompt} from './journal-prompts.mjs';
 import { COURSES } from './classroom-model.mjs?v=student-1';
 import { JOURNAL_COURSES, journalWeeks, journalDraftKey, journalActivity, journalSnapshot } from './journal-model.mjs';
 
@@ -6,7 +7,7 @@ const weekLabel = week => new Date(week + 'T18:00:00Z').toLocaleDateString('en-U
 const wordCount = text => text.trim().split(/\s+/).filter(Boolean).length;
 
 /** Private, course-scoped weekly journals. No image uploads or automated grading. */
-export function journalsPage(main, account, courseArg, weekArg) {
+export async function journalsPage(main, account, courseArg, weekArg) {
   document.title = 'Weekly Journals | Ms. Whitby\'s Playground';
   if (!account.signedIn) {
     main.innerHTML = '<div class="journal-screen"><div class="eyebrow">Weekly Journals</div><h1>Write and submit your journal</h1><section class="panel"><p>Sign in to save your writing across computers and submit it privately to your teacher.</p><button class="btn btn-primary" type="button" id="journal-signin">Sign in with GitHub</button></section></div>';
@@ -22,6 +23,15 @@ export function journalsPage(main, account, courseArg, weekArg) {
   const course = courses.includes(courseArg) ? courseArg : courses[0];
   const weeks = journalWeeks();
   const week = weeks.includes(weekArg) ? weekArg : weeks[0];
+  const route = location.hash;
+  let prompt = null, promptError = '';
+  main.innerHTML = '<p role="status">Opening your journal prompt…</p>';
+  try {
+    const response = await fetch('data/journal-prompts.json', {cache:'no-store'});
+    if (!response.ok) throw Error();
+    prompt = findPrompt(await response.json(), course, week);
+  } catch { promptError = 'The prompt could not load. Reload this page before submitting. Your draft is still available.'; }
+  if (location.hash !== route) return;
   const responseKey = journalDraftKey(course, week, 'response');
   const detailsKey = journalDraftKey(course, week, 'details');
   const storage = account.storage;
@@ -36,7 +46,8 @@ export function journalsPage(main, account, courseArg, weekArg) {
       <label>Journal week <select id="journal-week">${weekOptions}</select></label>
     </section>
     <section class="journal-card journal-editor-card"><div class="journal-section-heading"><div><span class="eyebrow">${esc(COURSES[course] || course)}</span><h2>Journal · Week of ${esc(weekLabel(week))}</h2></div><span class="journal-status-pill">Not yet submitted</span></div>
-      <p class="journal-instructions">Follow the journal prompt your teacher provided in class. Explain your thinking in your own words. Logic puzzles should include your reasoning and final answer. You may use plain text, numbered steps, Markdown lists, and code blocks.</p>
+      <section class="panel" aria-label="Teacher journal prompt"><h3>${prompt ? esc(prompt.title) : 'Teacher prompt'}</h3>${prompt ? `<p style="white-space:pre-wrap">${esc(prompt.body)}</p><p class="fine">Prompt revision ${prompt.revision}</p>` : `<p role="status">${esc(promptError || 'Your teacher has not published a prompt for this course and week yet. You can save a draft and return later.')}</p>`}</section>
+      <p class="journal-instructions">Respond to the teacher prompt above. Explain your thinking in your own words. Logic puzzles should include your reasoning and final answer. You may use plain text, numbered steps, Markdown lists, and code blocks.</p>
       <form id="journal-form">
         <label for="journal-type">Response type</label><select id="journal-type" required><option value="">Choose a response type</option><option value="essay">Essay or written reflection</option><option value="logic-puzzle">Logic puzzle or reasoning task</option></select>
         <label for="journal-response">Your response</label><textarea id="journal-response" rows="15" maxlength="100000" placeholder="Write your journal here. For a logic puzzle, show the steps you used and state your final answer." required spellcheck="true"></textarea>
@@ -61,6 +72,7 @@ export function journalsPage(main, account, courseArg, weekArg) {
   const saveResponse = () => { storage.setItem(responseKey, response.value); updateWordCount(); markDraft(); };
   const saveDetails = () => { storage.setItem(detailsKey, JSON.stringify({ type: type.value, aiUse: aiUse.value, aiDetails: aiDetails.value })); updateDisclosure(); markDraft(); };
   updateWordCount(); updateDisclosure();
+  $('journal-submit').disabled = !prompt;
   response.addEventListener('input', saveResponse);
   for (const control of [type, aiUse, aiDetails]) control.addEventListener('input', saveDetails);
   $('journal-course').onchange = event => { location.hash = '#/journals/' + encodeURIComponent(event.target.value) + '/' + week; };
@@ -74,8 +86,9 @@ export function journalsPage(main, account, courseArg, weekArg) {
   $('journal-form').onsubmit = async event => {
     event.preventDefault();
     saveResponse(); saveDetails();
+    if (!prompt) { submitStatus.textContent = promptError || 'Wait for your teacher to publish this week’s prompt. Your draft is saved.'; return; }
     let snapshot;
-    try { snapshot = journalSnapshot({ course, week, response: response.value, type: type.value, aiUse: aiUse.value, aiDetails: aiDetails.value }); }
+    try { snapshot = attachPrompt(journalSnapshot({ course, week, response: response.value, type: type.value, aiUse: aiUse.value, aiDetails: aiDetails.value }), prompt); }
     catch (error) { submitStatus.textContent = error.message; return; }
     if (!confirm('Submit your weekly journal? This creates a dated copy for your teacher.')) return;
     const button = $('journal-submit');
