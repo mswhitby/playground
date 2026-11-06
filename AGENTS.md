@@ -1,12 +1,12 @@
 # Ms. Whitby's Playground — canonical project instructions
 
-**This repository is the source of truth for the actual Playground product.** Read [docs/HANDOFF.md](docs/HANDOFF.md) for the current project status, review branches, latest frontend work, and next step. The companion `playground-react` repository is a **temporary frontend design lab**, not the main project.
+**This repository is the source of truth for the actual Playground product.** Read [docs/HANDOFF.md](docs/HANDOFF.md) for current work and [docs/CURRICULUM-REPOSITORIES.md](docs/CURRICULUM-REPOSITORIES.md) for repository-specific lesson/challenge authoring, validation, privacy, and publication rules. The companion `playground-react` repository is a **temporary frontend design lab**, not the main project.
 
 ## Session startup (all GitHub/Codex development work)
 
 1. Read this `AGENTS.md` and `docs/HANDOFF.md` **from `mswhitby/playground/main`**.
 2. Inspect GitHub's current branches, open PRs, relevant files, test results, and production/preview publication status before taking action. Handoff SHAs and dates are snapshots, not guarantees.
-3. Confirm which repository actually owns the requested work. **Do not substitute the React prototype for the main app.** If a frontend prototype change was approved, integrate it into the main `playground` implementation deliberately, preserving its real services.
+3. For any curriculum or challenge task, read [docs/CURRICULUM-REPOSITORIES.md](docs/CURRICULUM-REPOSITORIES.md) and the owning content repo's README and manifest before changing any lessons. Confirm which repository actually owns the requested work. **Do not substitute the React prototype for the main app.** If a frontend prototype change was approved, integrate it into the main `playground` implementation deliberately, preserving its real services.
 4. Make changes in the owning repository, run its appropriate tests/build, and use a review PR unless the user specifically directs otherwise.
 5. At the end of substantial work, update the **canonical** `mswhitby/playground/docs/HANDOFF.md` with results, pending work, PRs/SHAs, tests and deployment status. If React design-lab work changed, also update its local handoff or link back here. Never report a deploy/merge before verifying it.
 
@@ -15,7 +15,7 @@
 - **Main product and production source:** `mswhitby/playground` (this repository). Owns shared frontend and editor, GitHub/Supabase authentication, role-checked teacher/class APIs, lesson activity and grading systems, schema migrations, build tooling and packaging. Its generated `dist/` is the production website artifact.
 - **Production site publisher:** `mswhitby/classroom`. Serves the built main app at `https://www.mswhitby.com/playground/` using GitHub Pages. `classroom/playground/` contains **deployed artifacts**, not a competing product implementation. Preserve the other classroom pages and site CNAME.
 - **Frontend redesign/design lab:** `mswhitby/playground-react`. The static review build is served separately at `https://www.mswhitby.com/playground/preview/` through a pinned-commit workflow in `classroom/.github/workflows/publish-react-cs1-preview.yml`. Its mock data, fake completion and demo assignments **must not replace** real production student records or backend operations.
-- **Curriculum authoring sources:** `mswhitby/computer-science-1`, `mswhitby/game-programming`, `mswhitby/mobile-app-dev`, `mswhitby/uil`, and TSI materials in `mswhitby/TSI`. Shared challenge/solutions repositories may be private. Keep ownership of curriculum and tests with their authoritative sources; package published content without redefining IDs.
+- **Curriculum authoring sources:** See [docs/CURRICULUM-REPOSITORIES.md](docs/CURRICULUM-REPOSITORIES.md) for exact structures, compatibility IDs and validation/publishing rules.  `mswhitby/computer-science-1`, `mswhitby/game-programming`, `mswhitby/mobile-app-dev`, `mswhitby/uil`, and TSI materials in `mswhitby/TSI`. Shared challenge/solutions repositories may be private. Keep ownership of curriculum and tests with their authoritative sources; package published content without redefining IDs.
 - Files in `playground-react` do not automatically ship to production. Files deployed in `classroom` do not automatically modify `playground` source. Always identify which flow is requested.
 
 ## Rules that must survive the React redesign
