@@ -16,9 +16,9 @@ test('actual Python evaluation distinguishes correct values, wrong types, except
  assert.equal(check('def solution(a,b): return a+b','total(2,3)','5').ok,true);
  assert.equal(normalize('Ready.\r\n'),'Ready.');
 });
-test('subject snapshot packages every original lesson, challenge and unchanged Pyodide worker',()=>{
+test('subject snapshot packages every original and new lesson, challenge and unchanged Pyodide worker',()=>{
  const temp=mkdtempSync(join(tmpdir(),'playground-python-'));
- try{execFileSync('node',['scripts/package-python.mjs','../computer-science-1',temp]);const c=JSON.parse(readFileSync(join(temp,'course.json'),'utf8'));assert.equal(c.lessons.length,24);assert.equal(c.challenges.length,24);assert.equal(new Set(c.lessons.map(l=>l.id)).size,24);
+ try{execFileSync('node',['scripts/package-python.mjs','../computer-science-1',temp]);const c=JSON.parse(readFileSync(join(temp,'course.json'),'utf8'));assert.equal(c.lessons.length,40);assert.equal(c.challenges.length,24);assert.equal(new Set(c.lessons.map(l=>l.id)).size,40);assert.equal(c.lessons.filter(l=>l.status==='archived').length,0);
  for(const l of c.lessons)assert.equal(readFileSync(join(temp,'units',l.markdown),'utf8'),readFileSync(join('../computer-science-1/units',l.markdown),'utf8'));
  assert.equal(readFileSync(join(temp,'python-worker.js'),'utf8'),readFileSync('../computer-science-1/docs/python-worker.js','utf8'));
  }finally{rmSync(temp,{recursive:true,force:true})}
@@ -37,4 +37,24 @@ test('Run previews returned values and printed output separately without requiri
 });
 test('public practice scores use passed case proportions and state their scope',()=>{
  assert.deepEqual(publicScore(2,3,15),{passedCases:2,totalCases:3,points:10,possible:15,scope:'public_examples'});
+});
+
+import {currentLessons,isArchived,activePythonActivity} from '../public/python-catalog.mjs';
+import {bestGradedSubmissions} from '../public/grade-results.mjs';
+test('archiving removes a lesson from current navigation but never erases its catalog identity',()=>{
+ const course={lessons:[{id:'01-legacy',status:'archived',points:15},{id:'07-new',points:5}],challenges:[]};
+ assert.deepEqual(currentLessons(course).map(x=>x.id),['07-new']);
+ assert.equal(isArchived(activePythonActivity(course,'lesson','01-legacy')),true);
+ assert.equal(course.lessons[0].points,15);
+ assert.equal(activePythonActivity(course,'lesson','01-legacy').id,'01-legacy');
+});
+test('highest graded points survive a later lower grade or ungraded hand-in',()=>{
+ const rows=[
+ {course_id:'computer-science-1',activity_id:'lesson:01-legacy',submitted_at:'2026-11-03T14:00:00Z',grade:{status:'graded',scope:'published_tests',points:15,possible:15}},
+ {course_id:'computer-science-1',activity_id:'lesson:01-legacy',submitted_at:'2026-11-04T14:00:00Z',grade:{status:'graded',scope:'published_tests',points:5,possible:15}},
+ {course_id:'computer-science-1',activity_id:'lesson:01-legacy',submitted_at:'2026-11-05T14:00:00Z',grade:{status:'queued'}}
+ ];
+ const best=bestGradedSubmissions(rows);
+ assert.equal(best.length,1);
+ assert.equal(best[0].grade.points,15);
 });
