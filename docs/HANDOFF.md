@@ -3,8 +3,13 @@
 **Updated:** 2026-11-06 (America/Chicago)  
 **Canonical project:** `mswhitby/playground`  
 **Standing instructions:** [../AGENTS.md](../AGENTS.md)
+**Curriculum repository guide:** [CURRICULUM-REPOSITORIES.md](CURRICULUM-REPOSITORIES.md)
 
 This is the **master handoff for the whole platform**, not just the React redesign. Always recheck current GitHub PRs, workflow runs, main branch and deployed site; every SHA and PR status below is a snapshot.
+
+## Curriculum authoring — now documented
+
+The canonical [curriculum repository guide](CURRICULUM-REPOSITORIES.md) records each source repository's authoring files, manifest format, build integration, private/public content boundary, validators and release workflow. **Read it before editing course lessons or challenges.** Do not update generated copies in `classroom` or React snapshots as the primary source. The guide was verified against the current course repository trees and manifest/README contents on 2026-11-06. No curriculum or student data was changed as part of this documentation work.
 
 ## Source of truth and deployment map
 
