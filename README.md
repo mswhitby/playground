@@ -335,3 +335,12 @@ submissions and practice completions.
 Run `npm test`, `npm run test:database` and `npm run test:browser`
 before merging. The inline details and current/week selector persist during
 dashboard refreshes; select **Refresh now** to reload a student's history.
+
+
+## Weekly Journals (student hand-ins)
+
+Open `#/journals` to write an essay/reflection or explain a logic puzzle, choose a course and Monday–Sunday Central Time journal week, and submit a dated copy. Students must be signed in and enrolled in an approved class for that course. The text and AI-use declaration save as private drafts, syncing through the existing Playground drafts account service. A distinct Submit journal action creates an immutable hand-in, accessible through the existing teacher dashboard and students' submission history.
+
+Journal activity IDs are `journal:YYYY-MM-DD` (the Monday start); journal submissions reuse the existing `self-report` kind so **no new database migration, external file upload, or automatic programming grade** is involved. The saved copy contains `journal.md` and `journal-info.json`. Multiple hand-ins for the same week retain earlier copies. The teacher provides the prompt in class; publishing prompts, deadlines, rubric-based scoring, image attachments, and a separate missing-work report are not part of this first release. Never put student journal contents in the public GitHub repository.
+
+Run `node --test tests/journal.test.mjs` for journal week/date, draft sync, and submission-payload contracts.

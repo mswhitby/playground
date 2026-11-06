@@ -87,6 +87,14 @@ export const Account={
  },
  get classroom(){return classroom},get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
  signIn,signOut,summaries,
+ async submitJournal(snapshot){
+  if(!user||!submissions)throw Error('Sign in before submitting your journal.');
+  if(!snapshot?.activity_id?.startsWith('journal:')||snapshot.activity_kind!=='self-report')throw Error('Not a journal submission.');
+  if(!classroom?.context.memberships.some(m=>m.status==='approved'&&m.course_id===snapshot.course_id))throw Error('Join an approved class for this course before submitting.');
+  const receipt=await submissions.submit(snapshot);
+  classroom?.setActivity(snapshot.course_id,snapshot.activity_id);classroom?.signalSubmission();
+  return receipt;
+ },
  async submissionHistory(){return assessedHistory(client,await loadSubmissionHistory(client,user?.id))},
  async submissionGrade(id){return submissionGrade(client,id)},
  mountSubmission(options){currentActivity={course_id:options.course_id,activity_id:options.activity_id};classroom?.setActivity(options.course_id,options.activity_id);return mountSubmission({...options,grade:options.course_id==='computer-science-1'&&['lesson','challenge'].includes(options.activity_kind)?id=>submissionGrade(client,id):null,latest:async()=>{const rows=await Account.submissionHistory();return rows.find(r=>r.course_id===options.course_id&&r.activity_id===options.activity_id)},signedIn:()=>!!user,signIn,submit:async snapshot=>{if(!submissions)throw Error('Sign in before submitting work.');const receipt=await submissions.submit(snapshot);classroom?.signalSubmission();return receipt}})},
