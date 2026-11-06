@@ -20,7 +20,38 @@ def request_for(case):
         raise ValueError('Unsupported authored function call')
     return {'mode':'function','function':call.func.id,'args':[ast.literal_eval(a) for a in call.args],'kwargs':{k.arg:ast.literal_eval(k.value) for k in call.keywords}}
 
+def shared_cases_for(activity, root):
+    """Build private Python grading cases from the checked-out shared challenge bank."""
+    if not root or not activity.startswith('challenge:shared-'):
+        return None
+    slug=activity.removeprefix('challenge:shared-')
+    if not slug or any(c not in 'abcdefghijklmnopqrstuvwxyz0123456789-' for c in slug):
+        return None
+    folder=Path(root)/'problems'/slug
+    try:
+        config=json.loads((folder/'config.json').read_text())
+        tests=json.loads((folder/'tests/hidden.json').read_text())
+    except (OSError,ValueError):
+        return None
+    if config.get('id')!=slug or tests.get('challengeId')!=slug:
+        return None
+    function=config.get('signature',{}).get('python')
+    if not isinstance(function,str) or not function.isidentifier():
+        return None
+    cases=[]
+    for case in tests.get('cases',[]):
+        args=case.get('input')
+        if not isinstance(args,list) or 'expected' not in case:
+            return None
+        cases.append(({'mode':'function','function':function,'args':args,'kwargs':{},'tuple_positions':[]},encode(case['expected'])))
+    points=config.get('points')
+    if not isinstance(points,int) or not 0<len(cases)<=60:
+        return None
+    return points,'grader_tests',cases
+
 def cases_for(activity,curriculum,trusted):
+    shared=shared_cases_for(activity,os.environ.get('GRADER_SHARED_DIR'))
+    if shared is not None:return shared
     kind,_,slug=activity.partition(':')
     if kind=='challenge':
         item=next((c for c in curriculum['challenges'] if c['id']==slug),None)
