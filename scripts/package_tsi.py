@@ -4,6 +4,8 @@ from pathlib import Path
 
 def package_tsi(dist,source=None):
  target=Path(dist)/'data/tsi-math'
+ if source and target.exists():
+  shutil.rmtree(target)
  if not source:
   if not (target/'content/20-day-program.json').exists():
    raise FileNotFoundError('TSI authoring checkout is required for replacement curriculum')
