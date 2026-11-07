@@ -102,3 +102,7 @@ For a new ChatGPT conversation, ask: **"Read `AGENTS.md` and `docs/HANDOFF.md` f
 - Added `supabase/tests/tsi-enrollment.sql` to exercise TSI pending join, teacher-only bulk approval, rejection of non-TSI classes and mixed/non-pending selections, atomicity, and preservation of approved status on rejoin.
 - Added the TSI migration and test to both branches of `supabase/tests/verify.mjs` (existing/missing submissions scenarios). CI for this new test commit is pending; no claim of a passing new test yet.
 - Prior identity-linking commit `0975feb` passed the GitHub Playground build. No production migration applied or deploy.
+
+### TSI curriculum authored in owning repository (2026-11-06)
+- `mswhitby/TSI` draft PR #2 (`feature/tsia2-four-strand-content-20261106`) now contains four original draft lessons, one per strand, with guided Learn steps, 16 multiple-choice practice questions, explained teacher reference answers, supplemental catalog, and structural validation script. Published Week 1 IDs remain intact.
+- These are draft files **not** included in `TSI/course.json`, not packaged into Playground, not deployed, and not a full TSIA2 curriculum. No validation run has been verified yet. Next: complete more topics, verify math/editorial quality, run validators, connect supplemental manifest to main packaging, and build interactive assessment delivery without publishing protected grading keys.
