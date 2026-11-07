@@ -23,7 +23,7 @@ def package_tsi(dist,source=None):
  assert len(plan['days'])==20 and [d['day'] for d in plan['days']]==list(range(1,21))
  profiles=json.loads((target/'content/math-locator-profiles.json').read_text())['profiles']
  assert len(profiles)==81 and len({p['code'] for p in profiles})==81
- diagnostic=json.loads((target/'content/diagnostic-20day-v1.json').read_text())['items']
+ diagnostic=json.loads((target/'content/diagnostic-24-mc-v2.json').read_text())['items']
  assert len(diagnostic)==24 and {q['strand'] for q in diagnostic}=={'quantitative','algebraic','geometry','statistics'}
  metadata=json.loads((target/'source.json').read_text()) if (target/'source.json').exists() else {}
  metadata['file']='content/20-day-program.json'
