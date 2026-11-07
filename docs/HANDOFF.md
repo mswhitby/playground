@@ -76,3 +76,7 @@ The canonical [curriculum repository guide](CURRICULUM-REPOSITORIES.md) records 
 Write: date, owning repo and branch, approved decision, exact open/merged PR state, tests performed and outcome, deployment verified or not, mock vs real data boundary, then a **specific next step**. Do not merely update a React-specific handoff and leave the canonical product handoff stale.
 
 For a new ChatGPT conversation, ask: **"Read `AGENTS.md` and `docs/HANDOFF.md` from `mswhitby/playground/main`, verify open PRs and deployed previews, and continue our Playground work."**
+
+## TSI 20-day existing-UI integration (in progress, 2026-11-06)
+
+PR #27 (`tsi-20-day-existing-ui`) adds a 20-day schedule view and four interactive draft strand lessons under the existing `#/course/tsi-math/study` route. Existing five-day IDs and local practice results are retained. `scripts/package_tsi.py` copies the new plan, locator profiles, lesson Markdown and answer explanations when `--tsi-source` is provided. `public/app.js` bumps the TSI module cache version. **Not yet tested or deployed.** Next: verify build/browser tests, update the classroom workflow to check out TSI and build from the verified Playground commit, then verify production; the schedule is not a complete 20-day authored curriculum. Longer-term direction: independent curriculum bundle deployment without duplicating the shared app.

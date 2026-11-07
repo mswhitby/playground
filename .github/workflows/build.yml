@@ -29,6 +29,10 @@ jobs:
         with:
           repository: mswhitby/computer-science-1
           path: computer-science-1
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/TSI
+          path: TSI
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -60,7 +64,7 @@ jobs:
       - name: Build one shared website
         working-directory: playground
         run: |
-          python scripts/build.py --game-source ../game-programming
+          python scripts/build.py --game-source ../game-programming --tsi-source ../TSI
           python scripts/verify-font-assets.py
       - name: Test redesigned workspaces in Chromium
         working-directory: playground
