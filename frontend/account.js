@@ -34,6 +34,11 @@ function render(){
  const classLink=document.createElement('a');classLink.href='/playground/#/classes';classLink.textContent='My classes';panel.append(classLink);
  if(classroom?.context.memberships.some(m=>m.status==='approved')){const shared=document.createElement('p');shared.textContent='Recent activity on class activities is shared with your approved class teacher. Manage this in My classes.';panel.append(shared)}
  if(classroom?.context.is_teacher){const teacher=document.createElement('a');teacher.href='/playground/#/teacher';teacher.textContent='Teacher dashboard';panel.append(teacher)}
+ const hasGitHub=!!user.identities?.some(identity=>identity.provider==='github');
+ if(!hasGitHub){
+  const help=document.createElement('p');help.textContent='Connect GitHub to this existing Playground account before using coding courses. Your saved work and account ID will stay the same.';panel.append(help);
+  panel.append(button('Connect GitHub',linkGitHub));
+ }
  panel.append(button('Sync now',()=>sync?.flush()),button('Sign out',signOut));
  if(cache.guestKeys().length)panel.append(button('Import my guest work',importGuest));
  if(sync?.queue.length)panel.append(button('Download unsynced backup',backupDownload));
@@ -45,6 +50,15 @@ function render(){
    try{await sync.resolve(task,keep);location.reload()}catch{update('The conflict could not be resolved. Both copies are still preserved.')}
   }));panel.append(box);
  }
+}
+async function linkGitHub(){
+ if(!user){update('Sign in to your existing account before connecting GitHub.');return}
+ if(user.identities?.some(identity=>identity.provider==='github')){update('GitHub is already connected.');return}
+ await sync?.flush();
+ try{sessionStorage.setItem('playground-return-to',safeReturn(location.href))}catch{}
+ update('Opening GitHub to connect it to your existing account…');
+ const {error}=await client.auth.linkIdentity({provider:'github',options:{redirectTo:callback}});
+ if(error)update('Could not connect GitHub. Account linking may need to be enabled by the administrator. Your existing account is unchanged.');
 }
 async function signIn(){
  await sync?.flush();try{sessionStorage.setItem('playground-return-to',safeReturn(location.href))}catch{}
@@ -86,7 +100,7 @@ export const Account={
   const receipt=await submissions.submit({course_id,activity_id:'review:'+activity_id,activity_kind:'self-report',files:{'review-request.json':JSON.stringify({activity_id,note:String(note).trim().slice(0,1000),url:location.href})}});return receipt;
  },
  get classroom(){return classroom},get user(){return user},get status(){return status},get signedIn(){return !!user},get pending(){return sync?.queue.length||0},get storage(){return cache||native},
- signIn,signOut,summaries,
+ signIn,signOut,linkGitHub,summaries,
  async submitJournal(snapshot){
   if(!user||!submissions)throw Error('Sign in before submitting your journal.');
   if(!snapshot?.activity_id?.startsWith('journal:')||snapshot.activity_kind!=='self-report')throw Error('Not a journal submission.');

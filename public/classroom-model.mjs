@@ -1,4 +1,4 @@
-export const COURSES={'computer-science-1':'Computer Science I','game-programming':'Game Programming & Design','mobile-app-dev':'Mobile App & Web',uil:'UIL Computer Science',capstone:'Capstone'};
+export const COURSES={'computer-science-1':'Computer Science I','game-programming':'Game Programming & Design','mobile-app-dev':'Mobile App & Web',uil:'UIL Computer Science',capstone:'Capstone','tsi-math':'TSI Mathematics'};
 export function activityState(signals,serverNow=Date.now()){
  const rows=signals.filter(s=>s.visible&&serverNow-Date.parse(s.last_seen_at)<=65000&&serverNow>=Date.parse(s.last_seen_at)-5000);
  const recent=rows.filter(s=>s.last_interaction_at&&serverNow-Date.parse(s.last_interaction_at)<=120000).sort((a,b)=>Date.parse(b.last_interaction_at)-Date.parse(a.last_interaction_at));

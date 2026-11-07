@@ -76,3 +76,33 @@ The canonical [curriculum repository guide](CURRICULUM-REPOSITORIES.md) records 
 Write: date, owning repo and branch, approved decision, exact open/merged PR state, tests performed and outcome, deployment verified or not, mock vs real data boundary, then a **specific next step**. Do not merely update a React-specific handoff and leave the canonical product handoff stale.
 
 For a new ChatGPT conversation, ask: **"Read `AGENTS.md` and `docs/HANDOFF.md` from `mswhitby/playground/main`, verify open PRs and deployed previews, and continue our Playground work."**
+
+## TSI enrollment implementation — in progress (2026-11-06)
+
+- **Owner:** canonical `mswhitby/playground`; branch `feature/tsi-enrollment-auth-20261106`. No production deployment or merge authorized.
+- **Approved model:** existing Playground account first (including an “unsure” recovery path); new test-prep students use school-issued email, teacher-approved class-code enrollment, and eventually randomly generated lowercase two-word passphrases. Teachers can bulk approve and export initial credentials as printable PDF cards or CSV. An authenticated GitHub identity linked to the same account unlocks coding access even after subsequent passphrase login; GitHub operations may still require fresh provider authorization.
+- **Implemented first slice:** migration `202611060011_tsi_enrollment_foundation.sql` adds `tsi-math` to classes, changes TSI join requests for already authenticated accounts to pending (instead of auto-approved), and adds teacher-scoped bulk approval/rejection of pending TSI memberships. Existing GitHub CS joining and all historical data remain untouched. **This does not yet provide anonymous email/passphrase signup, account linking, credential exports, or a teacher UI.**
+- **Safety:** SQL RPC checks teacher scope; bulk updates require a TSI class and pending members, with all-or-nothing validation. Do not use passphrase sign-in to call GitHub provider APIs without valid provider authorization. No private student data or secrets added.
+- **Verification:** GitHub main branch `f14e38056f66e76cf1df69a18fc51d02b8c63520` and no open canonical PRs checked at start; recent scheduled grading workflow succeeded. Migration has **not been executed against Supabase**; tests/build and deployment **not run**. Review constraint compatibility and database integration before applying.
+- **Next:** audit existing Supabase auth/client and schema migrations; design a trusted passphrase authentication endpoint compatible with `auth.users` identities and secure linking, then implement pending-request UI, bulk approval and one-time credential exports; add database tests and build checks before requesting merge approval.
+
+### Follow-up implementation on the same draft PR
+- Added `tsi-math` to real classroom course labels/section selector (`public/classroom-model.mjs`).
+- Added TSI-only pending student checkboxes, select all, approve selected and reject selected controls in `public/classroom-page.mjs`, calling the teacher-authorized bulk RPC. Coding sections retain existing individual controls.
+- GitHub Actions build on prior branch commit `7f1f621` succeeded; later commits' checks were still running at last check. No database migration applied or deployment performed. No passwordless sign-in or new-student account creation yet.
+- Next: inspect/authenticate account linking and build a secure passphrase backend (with school-domain restriction and rate limiting) before enabling new TSI student registration; test the full bulk workflow against an isolated Supabase database.
+
+### GitHub account-linking continuation (2026-11-06)
+- `frontend/account.js` now offers **Connect GitHub** only when an authenticated account has no GitHub identity. It uses Supabase `auth.linkIdentity` while signed in, preserving the existing `auth.users.id`, then returns through the established PKCE callback. This is the approved TSI-to-CS upgrade path, not a second user account.
+- Supabase documentation confirms manual identity linking must be enabled in Auth provider configuration. The current Supabase project setting was **not verified** and linking has not been exercised against a real account. No existing GitHub account or student record was modified.
+- **Security gap to resolve before enabling passphrase registration:** existing coding-course APIs and progress tables were built for GitHub-only accounts. Audit each write/grade/submission endpoint for a trusted GitHub identity check and prevent unlinked passphrase accounts from accessing coding records. Do not use editable user metadata as authorization. Design a teacher-controlled credential issuance flow that cannot claim another student's email, and avoid Supabase automatic identity linking for unverified school email.
+- The current UI still supports GitHub sign-in only for new accounts; no email/passphrase login or credential export has been implemented. No production changes authorized.
+
+### TSI database regression coverage (2026-11-06)
+- Added `supabase/tests/tsi-enrollment.sql` to exercise TSI pending join, teacher-only bulk approval, rejection of non-TSI classes and mixed/non-pending selections, atomicity, and preservation of approved status on rejoin.
+- Added the TSI migration and test to both branches of `supabase/tests/verify.mjs` (existing/missing submissions scenarios). CI for this new test commit is pending; no claim of a passing new test yet.
+- Prior identity-linking commit `0975feb` passed the GitHub Playground build. No production migration applied or deploy.
+
+### TSI curriculum authored in owning repository (2026-11-06)
+- `mswhitby/TSI` draft PR #2 (`feature/tsia2-four-strand-content-20261106`) now contains four original draft lessons, one per strand, with guided Learn steps, 16 multiple-choice practice questions, explained teacher reference answers, supplemental catalog, and structural validation script. Published Week 1 IDs remain intact.
+- These are draft files **not** included in `TSI/course.json`, not packaged into Playground, not deployed, and not a full TSIA2 curriculum. No validation run has been verified yet. Next: complete more topics, verify math/editorial quality, run validators, connect supplemental manifest to main packaging, and build interactive assessment delivery without publishing protected grading keys.
