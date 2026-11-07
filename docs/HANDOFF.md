@@ -97,3 +97,8 @@ For a new ChatGPT conversation, ask: **"Read `AGENTS.md` and `docs/HANDOFF.md` f
 - Supabase documentation confirms manual identity linking must be enabled in Auth provider configuration. The current Supabase project setting was **not verified** and linking has not been exercised against a real account. No existing GitHub account or student record was modified.
 - **Security gap to resolve before enabling passphrase registration:** existing coding-course APIs and progress tables were built for GitHub-only accounts. Audit each write/grade/submission endpoint for a trusted GitHub identity check and prevent unlinked passphrase accounts from accessing coding records. Do not use editable user metadata as authorization. Design a teacher-controlled credential issuance flow that cannot claim another student's email, and avoid Supabase automatic identity linking for unverified school email.
 - The current UI still supports GitHub sign-in only for new accounts; no email/passphrase login or credential export has been implemented. No production changes authorized.
+
+### TSI database regression coverage (2026-11-06)
+- Added `supabase/tests/tsi-enrollment.sql` to exercise TSI pending join, teacher-only bulk approval, rejection of non-TSI classes and mixed/non-pending selections, atomicity, and preservation of approved status on rejoin.
+- Added the TSI migration and test to both branches of `supabase/tests/verify.mjs` (existing/missing submissions scenarios). CI for this new test commit is pending; no claim of a passing new test yet.
+- Prior identity-linking commit `0975feb` passed the GitHub Playground build. No production migration applied or deploy.
