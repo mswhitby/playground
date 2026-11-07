@@ -11,7 +11,7 @@ def package_tsi(dist,source=None):
    raise FileNotFoundError('TSI authoring checkout is required for replacement curriculum')
  else:
   source=Path(source).resolve()
-  files=['content/20-day-program.json','content/math-locator-profiles.json','content/diagnostic-20day-v1.json','content/strand-lessons-v1.json']
+  files=['content/20-day-program.json','content/math-locator-profiles.json','content/diagnostic-24-mc-v2.json','content/strand-lessons-v1.json']
   catalog=json.loads((source/'content/strand-lessons-v1.json').read_text())
   for item in catalog['lessons']:
    files.extend([item['student_lesson'],item['teacher_key']])
@@ -24,7 +24,7 @@ def package_tsi(dist,source=None):
  profiles=json.loads((target/'content/math-locator-profiles.json').read_text())['profiles']
  assert len(profiles)==81 and len({p['code'] for p in profiles})==81
  diagnostic=json.loads((target/'content/diagnostic-20day-v1.json').read_text())['items']
- assert len(diagnostic)>=12 and {q['strand'] for q in diagnostic}=={'quantitative','algebraic','geometry','statistics'}
+ assert len(diagnostic)==24 and {q['strand'] for q in diagnostic}=={'quantitative','algebraic','geometry','statistics'}
  metadata=json.loads((target/'source.json').read_text()) if (target/'source.json').exists() else {}
  metadata['file']='content/20-day-program.json'
  metadata['sha256']=hashlib.sha256((target/metadata['file']).read_bytes()).hexdigest()
