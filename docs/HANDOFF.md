@@ -85,3 +85,9 @@ For a new ChatGPT conversation, ask: **"Read `AGENTS.md` and `docs/HANDOFF.md` f
 - **Safety:** SQL RPC checks teacher scope; bulk updates require a TSI class and pending members, with all-or-nothing validation. Do not use passphrase sign-in to call GitHub provider APIs without valid provider authorization. No private student data or secrets added.
 - **Verification:** GitHub main branch `f14e38056f66e76cf1df69a18fc51d02b8c63520` and no open canonical PRs checked at start; recent scheduled grading workflow succeeded. Migration has **not been executed against Supabase**; tests/build and deployment **not run**. Review constraint compatibility and database integration before applying.
 - **Next:** audit existing Supabase auth/client and schema migrations; design a trusted passphrase authentication endpoint compatible with `auth.users` identities and secure linking, then implement pending-request UI, bulk approval and one-time credential exports; add database tests and build checks before requesting merge approval.
+
+### Follow-up implementation on the same draft PR
+- Added `tsi-math` to real classroom course labels/section selector (`public/classroom-model.mjs`).
+- Added TSI-only pending student checkboxes, select all, approve selected and reject selected controls in `public/classroom-page.mjs`, calling the teacher-authorized bulk RPC. Coding sections retain existing individual controls.
+- GitHub Actions build on prior branch commit `7f1f621` succeeded; later commits' checks were still running at last check. No database migration applied or deployment performed. No passwordless sign-in or new-student account creation yet.
+- Next: inspect/authenticate account linking and build a secure passphrase backend (with school-domain restriction and rate limiting) before enabling new TSI student registration; test the full bulk workflow against an isolated Supabase database.
