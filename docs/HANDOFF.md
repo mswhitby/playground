@@ -103,3 +103,11 @@ PR #28 merged as `58f31c5269235dfab09681659845f8e54c53a104`. The latest PR build
 - **Preview deployment:** `mswhitby/classroom/.github/workflows/publish-react-cs1-preview.yml` pins an exact reviewed React commit and publishes only `playground/preview/`. Verify current pin and GitHub Pages deployment before asserting that the updated website is live. Do not publish `playground/dist` to production or modify `classroom/playground/` outside the isolated preview.
 
 **Next actionable step:** finish React CI and preview publication verification, manually review published content and navigation at https://www.mswhitby.com/playground/preview/, then create a separate **unmerged** integration PR in canonical `playground` implementing the React UI against the existing real services. After user approval and production-compatible runtime/auth/grade validation, proceed to author remaining TSI differentiated days and other course content in their owned curriculum repositories.
+
+### Preview publication verification — November 12, 2026
+
+- React PR #10 pinned at reviewed commit `ecbfcaf26f5fe8f48577fbe1f0c112e70e573d16` in `classroom/.github/workflows/publish-react-cs1-preview.yml`.
+- React code tests and Vite build passed at `25f77eb1ac350da92c33e3926ce7d145c82213c2` (GitHub Actions run `43259375598`). The preview publisher reran **both `npm test` and `npm run build` on the exact pinned `ecbfcaf...` commit** and succeeded (run `43259777713`).
+- The publisher committed just `playground/preview/index.html` and the corresponding React JS/CSS assets to `mswhitby/classroom/main` as `13a8d23c94b5f7319de765d9bfa202644c9dad54`; no production `/playground/` artifacts were changed.
+- GitHub Pages build/deployment for this published commit succeeded in run `43259861313`. The published preview HTML references the new hashed assets under `/playground/preview/assets/`. **Headless browser/UI click-through was not run; user testing is next.**
+- Review URL: https://www.mswhitby.com/playground/preview/ . Existing production: https://www.mswhitby.com/playground/ . Neither the React PR #10 nor this documentation PR #32 has been merged.
