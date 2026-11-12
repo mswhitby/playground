@@ -126,3 +126,13 @@ PR #28 merged as `58f31c5269235dfab09681659845f8e54c53a104`. The latest PR build
 - **Limitations:** supported browsers and school CDN access still determine whether Pyodide loads; Java file I/O tasks need a full Java 26 IDE; no hidden grading, sandboxed execution trust, official grades or server submissions. Do not imply the client-side checker is authoritative.
 
 **Next:** pin the final reviewed React commit in `mswhitby/classroom/.github/workflows/publish-react-cs1-preview.yml`; verify the isolated publisher tests/build, the Pages deployment and real course links. Once approved, port the reviewed frontend to the canonical Playground against its existing authentication, grading and runtimes. Do not merge/deploy production without explicit user approval.
+
+### Verified React live-practice preview publication — November 12, 2026
+
+- React open PR #10 unmerged at `4b52173a8260bed39beed5d77ba1557b45331ce9`. No canonical main Playground application change.
+- Preview publisher workflow pinned exact SHA and committed as `mswhitby/classroom` `22451152db596593f1e4e7c0d4437c2238254045`.
+- Publisher run `43268280514` succeeded: **66 tests passed, zero failed**, hosted Vite build succeeded and isolated preview publish succeeded. An earlier Vite failure for a Python helper import was fixed before this successful release.
+- Generated classroom preview commit `12b1d269b9030c8afe385e3db2358400823a118d` changes only `playground/preview/index.html` and three React preview assets; it does not change production application artifacts.
+- GitHub Pages deployment `43268373582` **succeeded** for this commit. Preview URL: https://www.mswhitby.com/playground/preview/ . No in-browser UI click-through or campus network test performed in this session.
+- Python uses Pyodide with a CDN that can be affected by school filtering. Java file-I/O tasks require Java 26 IDE, and Unity gameplay scenes require Unity. All client checks are public-example practice, never trusted grading; Submit remains disabled.
+- **Next:** review deployed functional Run/Check/Preview in every course on actual browsers, then port approved React UI to canonical Playground while preserving role-protected student data and server grading. Neither React PR #10 nor handoff PR #32 may be merged without authorization.
