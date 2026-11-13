@@ -1,11 +1,19 @@
 # Ms. Whitby's Playground — canonical project handoff
 
-**Updated:** 2026-11-06 (America/Chicago)  
+**Updated:** 2026-11-13 (America/Chicago)  
 **Canonical project:** `mswhitby/playground`  
 **Standing instructions:** [../AGENTS.md](../AGENTS.md)
 **Curriculum repository guide:** [CURRICULUM-REPOSITORIES.md](CURRICULUM-REPOSITORIES.md)
 
 This is the **master handoff for the whole platform**, not just the React redesign. Always recheck current GitHub PRs, workflow runs, main branch and deployed site; every SHA and PR status below is a snapshot.
+
+## Current update — 2026-11-13: Test Prep expansion (staged, React preview only)
+
+- **Architecture:** Test Prep is the intended top-level public area for existing TSI Math plus ASVAB, SAT and ACT. Keep the published `tsi-math` course ID and direct URLs unchanged; do not delete/recreate its 20-day curriculum, diagnostic work or existing learning history. A repository rename from `mswhitby/TSI` to `mswhitby/test-prep` is proposed, **not yet performed**.
+- **React design lab:** [draft PR #11](https://github.com/mswhitby/playground-react/pull/11) from branch `feature/test-prep-hub-20261113`, stacked on open PR #10. A Test Prep home card and hub link to the existing TSI course; original ASVAB/SAT/ACT samples cover 10 subject topics/20 formative MCQs with explanations and browser-only practice progress. New test-prep lesson pages are custom practice UI, not coding lessons; 75/75 React tests and build passed in [CI run 43504385667](https://github.com/mswhitby/playground-react/actions/runs/43504385667). These are not official items, tests or scaled scores.
+- **TSI source repo:** [draft PR #3](https://github.com/mswhitby/TSI/pull/3), branch `feature/test-prep-curriculum-20261113`, adds `test-prep.json`, new exam `track.json` files, a catalog validator and a rename/migration plan. Existing `course.json`, 20-day TSI assets and scripts remain unchanged. TSI validation passed [CI run 43504414481](https://github.com/mswhitby/TSI/actions/runs/43504414481) before the new CI workflow update; verify run after that commit too. This is **not** a completed test-prep migration or a new GitHub repository.
+- **Hosted preview:** `mswhitby/classroom/.github/workflows/publish-react-cs1-preview.yml` now pins React SHA `710a71b25e1bdb75614168890e3d5d7d021ac124` for `https://www.mswhitby.com/playground/preview/`. Preview publisher [run 43504615471](https://github.com/mswhitby/classroom/actions/runs/43504615471) succeeded; verify subsequent GitHub Pages deployment as a separate step. This workflow only updates isolated `/playground/preview` files, **not production** `/playground/`.
+- **Next:** (1) review preview with the other teacher, (2) migrate TSI and new exam catalogs into the shared source/packager with ID compatibility and student-safe filtering, (3) complete TSI 20-day differentiated content, (4) update all CI and provenance references and rename TSI repo only after dependencies are verified and approval is given. Do not merge draft PRs automatically or treat browser demo quiz attempts as verified grades.
 
 ## Curriculum authoring — now documented
 
