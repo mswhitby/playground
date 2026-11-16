@@ -32,3 +32,9 @@ Validate the approved React frontend against the existing live Playground's **ow
 6. Only then implement and audit permissioned submissions, roster, teacher/admin, and journal adapters in later PRs. Keep an immediate rollback route.
 
 Do not merge or replace production until the user explicitly approves the release.
+
+## Teacher dashboard phase (stacked draft PRs #35 / React #15)
+- Authorized teacher data uses `public/integration/teacher-readonly.js` and the existing `playground_classroom_context`, `playground_teacher_classes`, `playground_teacher_snapshot`, `playground_teacher_weekly_points` and `playground_teacher_student_history` server functions.
+- RPC transport uses POST as required by Supabase, but the adapter only permits the named **read** RPCs. The database enforces teacher/section permissions; a forged client role never grants access.
+- React `TeacherReadOnly.jsx` shows authorized sections, approved roster, weekly verified improvements, checks and selected student hand-in metadata. No code, drafts, account directory, approvals, assignment writes, or grade mutations are loaded.
+- **Not yet released:** PRs are unmerged and this phase is not pinned in the isolated publisher. Test nonteacher denial, two-teacher section isolation, expired sessions, browser rendering and network requests before staging.
