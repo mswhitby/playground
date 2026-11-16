@@ -34,3 +34,18 @@ test('teacher rows only include approved members and server weekly totals',()=>{
  {weeks:[{user_id:'a',week_start:'2026-11-16',points:7,assignments:2}]},'2026-11-16');
  assert.equal(rows.length,1);assert.equal(rows[0].points,7);assert.equal(rows[0].checks,3);
 });
+
+test('authorized identity readers are allowlisted, mutations remain denied',async()=>{
+ const calls=[];
+ const fetchImpl=async(url,opts)=>{
+  calls.push(url);
+  const data=url.endsWith('/auth/v1/user')?{id:uuid}:url.endsWith('/rpc/playground_classroom_context')?{is_teacher:true}:url.endsWith('/rpc/playground_teacher_classes')?[]:[];
+  return {ok:true,json:async()=>data};
+ };
+ const service=await teacherReadOnlyClient({storage,fetchImpl});
+ assert.equal(service.status,'ready');
+ for(const name of ['playground_teacher_names','playground_teacher_sheet_roster','playground_teacher_directory'])assert.deepEqual(await service.rpc(name),[]);
+ await assert.rejects(()=>service.rpc('playground_teacher_save_names',{p_rows:[]}),/not allowed/);
+ await assert.rejects(()=>service.rpc('playground_teacher_sync_sheet',{p_rows:[]}),/not allowed/);
+ assert.equal(calls.length,6);
+});
