@@ -1,0 +1,59 @@
+name: Verify isolated React CS1 read-only integration
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: playground
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/playground-react
+          ref: 540fca0bdb298e7729e31e7159783ac6db446b15
+          path: react
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/computer-science-1
+          path: computer-science-1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical Playground account and grade invariants
+        working-directory: playground
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+      - name: Verify isolated React integration view
+        working-directory: react
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+      - name: Package CS1 curriculum and read-only account adapter
+        run: |
+          mkdir -p review/playground/integration review/playground/data/computer-science-1
+          cd playground
+          node scripts/package-python.mjs ../computer-science-1 ../review/playground/data/computer-science-1
+          npx esbuild frontend/integration-readonly.js --bundle --format=esm --platform=browser --minify --outfile=../review/playground/integration/account-bridge.js
+      - name: Build React on isolated URL only
+        working-directory: react
+        env:
+          VITE_HASH_ROUTING: 'true'
+          VITE_READONLY_INTEGRATION: 'true'
+        run: npm run build -- --base=/playground/integration/
+      - name: Assemble and inspect isolated release
+        run: |
+          cp -a react/dist/. review/playground/integration/
+          test -f review/playground/integration/account-bridge.js
+          test -f review/playground/integration/python-worker.js
+          grep -q '/playground/integration/assets/' review/playground/integration/index.html
+          grep -q 'playground_grades' review/playground/integration/account-bridge.js || (echo 'Adapter missing grade read' && exit 1)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playground-cs1-readonly-integration
+          path: review/playground/
+          include-hidden-files: true
