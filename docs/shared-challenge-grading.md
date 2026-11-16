@@ -20,6 +20,27 @@ The database currently enqueues the older Computer Science I lessons/challenges.
 
 Once the private token works and the Python server grader has passed its isolated tests in CI, extend `playground_private.enqueue_grade()` to enqueue only supported shared-bank Python snapshot activity IDs across approved courses. Keep the explicit student confirmation and append-only snapshot model. Do **not** queue Java, JavaScript, or C# as verified grades yet: their secure server execution is not implemented. Their *browser example checks* are practice feedback only.
 
+## Challenge points across multiple classes — design proposal (not implemented)
+
+A shared challenge should have **one student-level completion record**, but **course credit should be allocated separately**. This avoids double-counting when the same student is enrolled in more than one Playground course while still allowing one completed challenge to satisfy multiple explicit assignments when that is intentional.
+
+Recommended model:
+
+- **Challenge completion:** global per student + challenge. Completing the same challenge again in another class should not create a second achievement/completion record.
+- **Best challenge score:** global per student + challenge for the student's challenge history. Preserve the best verified score without rewriting historical submissions.
+- **Course credit:** separate from completion. Store or derive an explicit course/section credit record for each class that should receive points.
+- **Course totals:** include only challenge points explicitly credited to that course/section. A student's challenge points must never be copied automatically into every course in which the student is enrolled.
+- **Suggested courses:** `suggestedCourses` controls discovery/recommendations only. It must not decide which course receives grade points.
+- **Optional challenges:** default to **practice only** — completion is tracked, but no course points are awarded unless a teacher explicitly assigns or credits the challenge.
+- **Assigned challenges:** default to **course credit** for the section/course that created the assignment.
+- **Same challenge assigned in multiple classes:** one successful completion may satisfy each explicit assignment, but each class should receive its own course-credit record. This is the only case where one challenge result should count toward multiple course totals automatically.
+- **Manual cross-course credit:** allow the teacher to add credit to another enrolled course without requiring the student to resubmit the same challenge.
+- **Bonus mode:** consider supporting a challenge assignment whose earned points count as bonus points without increasing the course's regular possible-points total.
+
+The UI should continue to keep **lesson** and **challenge** totals separate for completed, graded, tracked, earned points, and possible points. A combined overall-points figure can exist as an additional summary, but it should never replace the separate lesson/challenge breakdown.
+
+Before implementing, decide the database shape for the course-credit record and confirm how historical shared-challenge submissions should be attributed when no section/course was recorded at submission time. Do not infer course credit solely from current enrollment, because a student may be enrolled in multiple classes or may have changed sections after completing the challenge.
+
 ## Validation and deployment
 
 - CI: `python3 -m unittest discover -s grading -p 'test_*.py'`; check container isolation with `python3 grading/smoke_isolation.py`.
