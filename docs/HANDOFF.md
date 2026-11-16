@@ -16,6 +16,15 @@ This is the **master handoff for the whole platform**, not just the React redesi
 - **Not yet done:** No real account session has been manually exercised in the deployed browser; signed-in RLS and real grade display should be checked with a test account. Production CI may still have unrelated external Java runtime setup failures. No real submission/regrade, teacher assignments, journals, protected teacher/admin pages, other courses, or deep-link migration has been enabled in React. The React app remains a separate tested frontend, not yet merged into the central production build.
 - **Next:** Verify signed-in CS1 account/grade read-only flows and route compatibility, then safely wire **explicit, confirmed** submissions to the existing trusted service behind a further staging feature gate, with role-based access and non-production test submissions before any live replacement.
 
+## 2026-11-16 — First production-integrated React CS1 test, read-only branch
+
+- Canonical source branch: feature/react-cs1-readonly-integration-20261116. Added public/integration/account-bridge.js, tests/react-integration-bridge.test.mjs and docs/REACT-CS1-INTEGRATION.md.
+- Bridge reuses an **existing** signed-in Playground session but only issues identity and user-owned grade/history GETs under production RLS; no submission, progress, token refresh, class activity or database writes occur.
+- Score and weekly increase calculations mirror current server-verified grade rules (highest valid result per activity; positive improvements by Monday-start Chicago submission week). No browser-only check receives grade credit.
+- Companion React branch: mswhitby/playground-react feature/cs1-readonly-production-bridge-20261116. Its opt-in read-only build limits UI to CS1 and Grades; Submit is disabled and demo completion is excluded.
+- Planned isolated hosting: /playground/integration/, separate from production and the existing /playground/preview/ design lab. Do not merge/publish over live /playground/.
+- Release verification pending: main and React CI, then isolated publisher and browser sign-in/grade comparison using an authorized test account. See docs/REACT-CS1-INTEGRATION.md for all gates.
+
 ## Current update — 2026-11-13: Test Prep expansion (staged, React preview only)
 
 - **Architecture:** Test Prep is the intended top-level public area for existing TSI Math plus ASVAB, SAT and ACT. Keep the published `tsi-math` course ID and direct URLs unchanged; do not delete/recreate its 20-day curriculum, diagnostic work or existing learning history. A repository rename from `mswhitby/TSI` to `mswhitby/test-prep` is proposed, **not yet performed**.
