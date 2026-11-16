@@ -7,6 +7,15 @@
 
 This is the **master handoff for the whole platform**, not just the React redesign. Always recheck current GitHub PRs, workflow runs, main branch and deployed site; every SHA and PR status below is a snapshot.
 
+## Current update — 2026-11-16: TSI four-strand two-column layout (review only)
+
+- **Request:** For the four currently authored TSIA2 Math strand lessons, present interactive questions on the **left** and learning/worked explanations on the **right**, rather than stacking both sections.
+- **Source:** `mswhitby/playground` draft PR [#33](https://github.com/mswhitby/playground/pull/33), branch `feature/tsi-strand-two-column-20261116`. The owning files are `public/tsi.mjs`, `public/tsi.css`, plus a smoke-test update in `scripts/smoke-redesign.mjs` and cache-busting asset references in `public/index.html` and `public/app.js`.
+- **Behavior:** Desktop uses a responsive two-column question/explanation workspace. Checking answers reveals detailed explanation cards in the right column while retaining brief accessible question feedback at left. At narrow widths, questions stack above the explanation section. The four authored lesson routes and existing browser-local practice history remain unchanged; diagnostic and simulation are untouched.
+- **Test status:** New Playwright desktop/mobile assertions have been added, but the full build and browser CI must be confirmed against this PR before marking it verified.
+- **Deployment status:** **NOT deployed; NOT merged.** This source change is intended to be reviewed before publishing. Do not confuse it with the separate `playground-react` Test Prep prototype, which already uses a question-left/Learn-right arrangement for its mock TSI questions. The live website and preview publisher were not changed.
+- **Next:** Review the four strand lessons, confirm PR checks and mobile behavior, then publish only after explicit approval.
+
 ## Current update — 2026-11-13: Test Prep expansion (staged, React preview only)
 
 - **Architecture:** Test Prep is the intended top-level public area for existing TSI Math plus ASVAB, SAT and ACT. Keep the published `tsi-math` course ID and direct URLs unchanged; do not delete/recreate its 20-day curriculum, diagnostic work or existing learning history. A repository rename from `mswhitby/TSI` to `mswhitby/test-prep` is proposed, **not yet performed**.
