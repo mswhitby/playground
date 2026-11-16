@@ -20,6 +20,22 @@ jobs:
         with:
           repository: mswhitby/computer-science-1
           path: computer-science-1
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/game-programming
+          path: game-programming
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/mobile-app-dev
+          path: mobile-app-dev
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/uil
+          path: uil
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/TSI
+          path: TSI
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
