@@ -68,6 +68,11 @@ jobs:
           test -f review/playground/integration/python-worker.js
           grep -q '/playground/integration/assets/' review/playground/integration/index.html
           grep -q 'playground_grades' review/playground/integration/account-bridge.js || (echo 'Adapter missing grade read' && exit 1)
+      - name: Browser regression for isolated CS1 routes and disabled writes
+        working-directory: playground
+        run: |
+          npx playwright install --with-deps chromium
+          node scripts/smoke-react-cs1-integration.mjs ../review/playground
       - uses: actions/upload-artifact@v4
         with:
           name: playground-cs1-readonly-integration
