@@ -3,13 +3,12 @@ import {loadSubmissionHistory} from '../public/submission-history.mjs';
 import {ClassroomClient} from '../public/classroom-client.mjs';
 import {SubmissionService,mountSubmission} from '../public/submissions.mjs';
 import {createClient} from '@supabase/supabase-js';
-import {PLAYGROUND_SUPABASE_URL,PLAYGROUND_PUBLISHABLE_KEY,PLAYGROUND_AUTH_STORAGE_KEY} from './account-config.js';
 import {AccountCache,describeKey,acceptedProgress} from '../public/account-model.mjs';
 import {PracticeSync} from '../public/account-sync.mjs';
-const PROJECT_URL=PLAYGROUND_SUPABASE_URL;
-const PUBLISHABLE_KEY=PLAYGROUND_PUBLISHABLE_KEY;
+const PROJECT_URL='https://lndzhmwvooqfrqcafhut.supabase.co';
+const PUBLISHABLE_KEY='sb_publishable_o5PgBG-pF2GzPZxTv4oRmA_s0OeJ9OM';
 const callback=location.origin+'/playground/auth-callback.html';
-const client=createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{storageKey:PLAYGROUND_AUTH_STORAGE_KEY,flowType:'pkce',detectSessionInUrl:false,persistSession:true,autoRefreshToken:true},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(12000)]):AbortSignal.timeout(12000)})}});
+const client=createClient(PROJECT_URL,PUBLISHABLE_KEY,{auth:{storageKey:'playground-auth-v1',flowType:'pkce',detectSessionInUrl:false,persistSession:true,autoRefreshToken:true},global:{fetch:(url,options={})=>fetch(url,{...options,signal:options.signal?AbortSignal.any([options.signal,AbortSignal.timeout(12000)]):AbortSignal.timeout(12000)})}});
 let user=null,sync=null,cache=null,submissions=null,classroom=null,status='Checking your account…',hydrated=false,leaving=false;
 const native=(()=>{try{const s=localStorage;s.getItem('playground-storage-check');return s}catch{
  const values=new Map();return {get length(){return values.size},key:i=>[...values.keys()][i]??null,getItem:k=>values.get(k)??null,setItem:(k,v)=>values.set(k,String(v)),removeItem:k=>values.delete(k)};
