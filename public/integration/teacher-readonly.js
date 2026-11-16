@@ -43,7 +43,7 @@ export async function teacherReadOnlyClient({
   if(context?.is_teacher!==true)return {status:'forbidden'};
   const classes=await rpc('playground_teacher_classes');
   if(!Array.isArray(classes))throw Error('Invalid section response.');
-  return {status:'ready',classes:classes.map(c=>({id:c.id,name:c.name,course_id:c.course_id})),rpc};
+  return {status:'ready',classes:classes.map(c=>({id:c.id,name:c.name,course_id:c.course_id,join_code:c.join_code||null})),rpc};
  }catch(error){
   if(signal?.aborted)throw error;
   return {status:'unavailable',message:'Teacher data could not be loaded. No records were changed.'};
