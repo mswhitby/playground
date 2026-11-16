@@ -47,7 +47,7 @@ jobs:
       - name: Verify isolated React integration view
         working-directory: react
         run: |
-          npm ci --no-audit --no-fund
+          npm install --no-audit --no-fund
           npm test
       - name: Package CS1 curriculum and read-only account adapter
         run: |
