@@ -6,7 +6,9 @@ const KEY='sb_publishable_o5PgBG-pF2GzPZxTv4oRmA_s0OeJ9OM';
 const READ_RPC=new Set([
  'playground_classroom_context','playground_teacher_classes',
  'playground_teacher_snapshot','playground_teacher_weekly_points',
- 'playground_teacher_student_history'
+ 'playground_teacher_student_history',
+ 'playground_teacher_names','playground_teacher_sheet_roster',
+ 'playground_teacher_directory','playground_teacher_submission'
 ]);
 const UUID=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function tokenFrom(storage,now){
@@ -37,6 +39,7 @@ export async function teacherReadOnlyClient({
    if(!READ_RPC.has(name))throw Error('Read-only teacher integration: operation not allowed.');
    if((name==='playground_teacher_snapshot'||name==='playground_teacher_weekly_points')&&!UUID.test(args.p_class||''))throw Error('Invalid section.');
    if(name==='playground_teacher_student_history'&&(!UUID.test(args.p_class||'')||!UUID.test(args.p_student||'')))throw Error('Invalid student or section.');
+   if(name==='playground_teacher_submission'&&(!UUID.test(args.p_class||'')||!UUID.test(args.p_submission||'')))throw Error('Invalid section or submission.');
    return readJson('/rest/v1/rpc/'+name,token,fetchImpl,signal,args);
   };
   const context=await rpc('playground_classroom_context');
