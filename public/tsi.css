@@ -27,3 +27,33 @@
 
 /* Diagnostic questions need the same reading size and contrast as lesson text. */
 #math-diagnostic .tsi-question > label { font-size: 1rem; color: inherit; }
+
+/* Four authored TSIA2 strand lessons: questions left, learning and checked explanations right. */
+.pg-app .tsi-strand-workspace {
+  display:grid;
+  grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);
+  align-items:start;
+  gap:20px;
+  margin:22px 0;
+}
+.pg-app .tsi-strand-workspace>.panel {min-width:0;margin:0}
+.pg-app .tsi-strand-questions .tsi-question {min-width:0}
+.pg-app .tsi-strand-questions .tsi-question legend {max-width:100%;line-height:1.55;font-weight:650}
+.pg-app .tsi-strand-explanations .tsi-answer-review {
+  border-top:1px solid var(--border);
+  padding-top:18px;
+  margin-top:22px;
+}
+.pg-app .tsi-strand-explanations .tsi-answer-explanation {
+  padding:14px 0;
+  border-bottom:1px solid var(--border);
+}
+.pg-app .tsi-strand-explanations .tsi-answer-explanation h3 {margin:0 0 6px}
+.pg-app .tsi-strand-explanations .tsi-answer-explanation p {margin:6px 0}
+@media(max-width:800px) {
+  .pg-app .tsi-strand-workspace {grid-template-columns:minmax(0,1fr)}
+}
+@media print {
+  .pg-app .tsi-strand-workspace {grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .pg-app .tsi-strand-workspace>.panel {break-inside:avoid}
+}
