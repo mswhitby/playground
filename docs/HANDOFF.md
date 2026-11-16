@@ -7,6 +7,13 @@
 
 This is the **master handoff for the whole platform**, not just the React redesign. Always recheck current GitHub PRs, workflow runs, main branch and deployed site; every SHA and PR status below is a snapshot.
 
+## Current update — 2026-11-16: React TSI diagnostic appearance aligned with practice (preview only)
+
+- In `mswhitby/playground-react`, draft [PR #13](https://github.com/mswhitby/playground-react/pull/13) adds the same TSI numbered questions, rounded multiple-choice cards, selected-state styling and strand-section surfaces to the existing **24-item TSI diagnostic**. It preserves Not sure, 24-item response checks, scoring by strand and browser-local placement records.
+- React verification passed [run 43905192758](https://github.com/mswhitby/playground-react/actions/runs/43905192758) (tested commit `34f3e021b4d2624622afb1f893c5be4594a4de87`). The isolated classroom preview publisher [run 43905305165](https://github.com/mswhitby/classroom/actions/runs/43905305165) succeeded, pinning that React commit. The published preview asset contains the new diagnostic CSS; final GitHub Pages delivery should be confirmed independently before claiming full rollout.
+- **Scope:** React `/playground/preview/` only; actual main `/playground/` student app is unchanged. The original main-app strand layout proposal remains in draft [PR #33](https://github.com/mswhitby/playground/pull/33).
+- **Next:** Examine the published React Day 1 TSI diagnostic on phone and desktop before additional curriculum or production changes. Never merge the draft React feature branches automatically.
+
 ## Current update — 2026-11-16: TSI four-strand two-column layout (review only)
 
 - **Request:** For the four currently authored TSIA2 Math strand lessons, present interactive questions on the **left** and learning/worked explanations on the **right**, rather than stacking both sections.
