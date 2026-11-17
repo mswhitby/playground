@@ -1,0 +1,80 @@
+name: Verify isolated React CS1 read-only integration
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: playground
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/playground-react
+          ref: 1b322d535f359bf77eb42d7db4873c114a68232a
+          path: react
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/computer-science-1
+          path: computer-science-1
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/game-programming
+          path: game-programming
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/mobile-app-dev
+          path: mobile-app-dev
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/uil
+          path: uil
+      - uses: actions/checkout@v4
+        with:
+          repository: mswhitby/TSI
+          path: TSI
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify canonical Playground account and grade invariants
+        working-directory: playground
+        run: |
+          npm ci --no-audit --no-fund
+          npm test
+      - name: Verify isolated React integration view
+        working-directory: react
+        run: |
+          npm install --no-audit --no-fund
+          npm test
+      - name: Package CS1 curriculum and read-only account adapter
+        run: |
+          mkdir -p review/playground/integration review/playground/data/computer-science-1
+          cd playground
+          node scripts/package-python.mjs ../computer-science-1 ../review/playground/data/computer-science-1
+          npx esbuild frontend/integration-readonly.js --bundle --format=esm --platform=browser --minify --outfile=../review/playground/integration/account-bridge.js
+      - name: Build React on isolated URL only
+        working-directory: react
+        env:
+          VITE_HASH_ROUTING: 'true'
+          VITE_READONLY_INTEGRATION: 'true'
+        run: npm run build -- --base=/playground/integration/
+      - name: Assemble and inspect isolated release
+        run: |
+          cp -a react/dist/. review/playground/integration/
+          test -f review/playground/integration/account-bridge.js
+          test -f review/playground/integration/python-worker.js
+          grep -q '/playground/integration/assets/' review/playground/integration/index.html
+          grep -q 'playground_grades' review/playground/integration/account-bridge.js || (echo 'Adapter missing grade read' && exit 1)
+      - name: Browser regression for isolated CS1 routes and disabled writes
+        working-directory: playground
+        run: |
+          npx playwright install --with-deps chromium
+          node scripts/smoke-react-cs1-integration.mjs ../review/playground
+      - uses: actions/upload-artifact@v4
+        with:
+          name: playground-cs1-readonly-integration
+          path: review/playground/
+          include-hidden-files: true
