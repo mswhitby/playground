@@ -1,11 +1,20 @@
 # Ms. Whitby's Playground — canonical project handoff
 
-**Updated:** 2026-11-13 (America/Chicago)  
+**Updated:** 2026-11-17 (America/Chicago)  
 **Canonical project:** `mswhitby/playground`  
 **Standing instructions:** [../AGENTS.md](../AGENTS.md)
 **Curriculum repository guide:** [CURRICULUM-REPOSITORIES.md](CURRICULUM-REPOSITORIES.md)
 
 This is the **master handoff for the whole platform**, not just the React redesign. Always recheck current GitHub PRs, workflow runs, main branch and deployed site; every SHA and PR status below is a snapshot.
+
+## Current update — 2026-11-17: CS1 Python challenge continuity in isolated React integration
+
+- **Priority from teacher:** Defer teacher-only solutions. Prioritize preserving instruction continuity for existing Computer Science I students before enabling official submissions, assignments, or integrating other languages.
+- **Source of truth:** Original `mswhitby/computer-science-1/challenges/` and its published `docs/challenges/data-*.js` already provide **24 authentic Python challenges (255 published assignment points)**. Canonical `scripts/package-python.mjs` already publishes them into `data/computer-science-1/course.json`; the isolated classroom integration site has the same 24 original IDs. The private `mswhitby/challenges` shared multi-language bank remains a separate, not-yet-live source and must not replace this proven Python material.
+- **React review PR:** Open draft [`mswhitby/playground-react#16`](https://github.com/mswhitby/playground-react/pull/16), branch `feature/cs1-python-challenge-bank-20261117` stacked on React #15. Feature-flagged only for the isolated `/playground/integration/` build: enables one universal Challenge Bank page, Python-only notice, stable deep links, search/topic/difficulty/course filters and original published Python starter/public examples with browser Run/Check. Uses a student-safe field allowlist; no hidden tests, protected solutions, student mutations or official grade awarding.
+- **Draft and score preservation:** Retain original `challenge:<id>` identities for verified historical grades and `cs1:challenges:2026-10-26:draft:<id>` browser draft keys; do not overwrite student work or change published activity IDs. The existing GitHub challenge grading/submission procedure remains authoritative until the secure React Submit flow is completed.
+- **Verification:** React PR #16 CI [run 44165538956](https://github.com/mswhitby/playground-react/actions/runs/44165538956) passed 98 tests and build at tested code SHA `351a91fa40dba069906caa1a99f72ace082b0e89`. `mswhitby/classroom/.github/workflows/publish-react-cs1-integration.yml` now pins that SHA; publisher [run 44165774089](https://github.com/mswhitby/classroom/actions/runs/44165774089) passed and validated 24 source challenge contracts. Final [GitHub Pages deployment run 44165863348](https://github.com/mswhitby/classroom/actions/runs/44165863348) succeeded. Authenticated browser/school-device testing has not been performed.
+- **Next practical action:** Open `https://www.mswhitby.com/playground/integration/#/challenges` and verify real 24-card catalog, deep links, 3+ difficulty filters, Run/Check on representative function/dictionary/list challenges, draft persistence, and no unexpected API writes. Then connect verified Submit/grading and assignment targeting; defer teacher solutions until after CS1 student continuity works end-to-end. Do not merge review PRs or deploy production `/playground/` without approval.
 
 ## Current update — 2026-11-16: isolated React CS1 production integration (read-only)
 
